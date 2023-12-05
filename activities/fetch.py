@@ -87,11 +87,12 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
 
 def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Optional[tqdm]) -> List[str]:
     updated_tool_categories = set()
-    tool_directories = list()
+    tool_directories, nontool_directories = list(), list()
     for file in commit.files:
         updated_directories = pathlib.Path(file.filename).parents[:-1]
         if any([is_subpath(tool_directory, updated_directories[0]) for tool_directory in tool_directories]): continue
         for updated_directory in updated_directories:
+            if updated_directory in nontool_directories: continue
             try:
                 shed_filepath = str(updated_directory / SHED_FILENAME)
                 if pbar is not None: pbar.set_description(f'Peeking {shed_filepath}')
@@ -101,7 +102,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
                 tool_directories.append(updated_directory)
                 break
             except UnknownObjectException:
-                pass
+                nontool_directories.append(updated_directory)
     return list(updated_tool_categories)
 
 
@@ -111,6 +112,7 @@ def get_commit_history(repository: Repository, verbose: bool =False) -> pd.DataF
     new_entries = dict(author=list(), timestamp=list(), categories=list())
     for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
         if c.author is None: continue
+        pbar.set_postfix_str(c.sha[:7])
         datetime = pd.to_datetime(c.commit.author.date, utc=True)
         if datetime <= last_cache_update: break
         updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
