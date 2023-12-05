@@ -1,6 +1,7 @@
 import base64
 import re
 import pathlib
+import csv
 from typing import (
     Any,
     Dict,
@@ -62,12 +63,23 @@ def get_github_repository(g: Github, repository_url: str) -> Repository:
     return g.get_repo(f'{owner}/{name}')
 
 
+def get_cache_filepath(repository: Repository) -> str:
+    return f'cache/{repository.owner.login}/{repository.name}.csv'
+
+
 def get_cached_commit_history(repository: Repository) -> pd.DataFrame:
-    return pd.DataFrame(columns=['author', 'timestamp', 'categories'])
+    cache_filename = get_cache_filepath(repository)
+    if pathlib.Path(cache_filename).is_file():
+        return pd.read_csv(cache_filename)
+    else:
+        return pd.DataFrame(columns=['author', 'timestamp', 'categories'])
 
 
 def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
-    pass
+    cache_filename = get_cache_filepath(repository)
+    cache_directory = pathlib.Path(cache_filename).parents[0]
+    cache_directory.mkdir(parents=True, exist_ok=True)
+    history.to_csv(get_cache_filepath(repository), index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def is_subpath(subpath: pathlib.Path, path: pathlib.Path) -> bool:
@@ -97,16 +109,18 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tq
 def get_commit_history(repository: Repository) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     last_cache_update = pd.to_datetime(0)
-    new_entries = dict(author=list(), timestamp=list(), directory=list(), categories=list())
+    new_entries = dict(author=list(), timestamp=list(), categories=list())
     for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
         if c.author is None: continue
         datetime = pd.to_datetime(c.last_modified)
+        print(datetime)
         if datetime <= last_cache_update: break
         updated_tool_categories = get_updated_tool_categories(repository, c, pbar)
         new_entries['author'].append(c.author.login)
         new_entries['timestamp'].append(datetime)
         new_entries['categories'].append(','.join(updated_tool_categories))
+        if len(new_entries['author']) > 20: break
     new_entries_df = pd.DataFrame(new_entries)
-    history_df = pd.concat([cached_df, new_entries_df])
+    history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
     set_cached_commit_history(repository, history_df)
     return history_df
