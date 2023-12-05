@@ -8,6 +8,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--api', help='GitHub access token', default=None)
     parser.add_argument('--repo', help='Run for a single repository (owner/name)', default=None)
+    parser.add_argument('--verbose', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.api is None:
@@ -21,4 +22,4 @@ if __name__ == '__main__':
     
     for repository_url in repositories:
         repo = fetch.get_github_repository(g, repository_url)
-        fetch.get_commit_history(repo)
+        fetch.get_commit_history(repo, args.verbose)

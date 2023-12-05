@@ -5,6 +5,7 @@ import csv
 from typing import (
     Union,
     List,
+    Optional
 )
 
 import pandas as pd
@@ -84,7 +85,7 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
     return str(subpath) in [str(path)] + [str(p) for p in path.parents[:-1]]
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tqdm) -> List[str]:
+def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Optional[tqdm]) -> List[str]:
     updated_tool_categories = set()
     tool_directories = list()
     for file in commit.files:
@@ -93,7 +94,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tq
         for updated_directory in updated_directories:
             try:
                 shed_filepath = str(updated_directory / SHED_FILENAME)
-                pbar.set_description(f'Peeking {shed_filepath}')
+                if pbar is not None: pbar.set_description(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
                 shed_data = yaml.safe_load(shed_file)
                 updated_tool_categories |= set(shed_data['categories'])
@@ -104,7 +105,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tq
     return list(updated_tool_categories)
 
 
-def get_commit_history(repository: Repository) -> pd.DataFrame:
+def get_commit_history(repository: Repository, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list())
@@ -112,7 +113,7 @@ def get_commit_history(repository: Repository) -> pd.DataFrame:
         if c.author is None: continue
         datetime = pd.to_datetime(c.commit.author.date, utc=True)
         if datetime <= last_cache_update: break
-        updated_tool_categories = get_updated_tool_categories(repository, c, pbar)
+        updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
         new_entries['author'].append(c.author.login)
         new_entries['timestamp'].append(datetime)
         new_entries['categories'].append(','.join(updated_tool_categories))
