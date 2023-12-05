@@ -1,6 +1,9 @@
 import argparse
 import os
+import sys
 from . import fetch
+
+assert sys.version_info >= (3, 10)
 
 
 if __name__ == '__main__':
