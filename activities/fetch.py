@@ -3,10 +3,8 @@ import re
 import pathlib
 import csv
 from typing import (
-    Any,
-    Dict,
+    Union,
     List,
-    Optional,
 )
 
 import pandas as pd
@@ -82,11 +80,11 @@ def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
     history.to_csv(get_cache_filepath(repository), index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
-def is_subpath(subpath: pathlib.Path, path: pathlib.Path) -> bool:
+def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
     return str(subpath) in [str(path)] + [str(p) for p in path.parents[:-1]]
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tqdm) -> list:
+def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tqdm) -> List[str]:
     updated_tool_categories = set()
     tool_directories = list()
     for file in commit.files:
@@ -108,19 +106,17 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: tq
 
 def get_commit_history(repository: Repository) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
-    last_cache_update = pd.to_datetime(0)
+    last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list())
     for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
         if c.author is None: continue
-        datetime = pd.to_datetime(c.last_modified)
-        print(datetime)
+        datetime = pd.to_datetime(c.commit.author.date, utc=True)
         if datetime <= last_cache_update: break
         updated_tool_categories = get_updated_tool_categories(repository, c, pbar)
         new_entries['author'].append(c.author.login)
         new_entries['timestamp'].append(datetime)
         new_entries['categories'].append(','.join(updated_tool_categories))
-        if len(new_entries['author']) > 20: break
-    new_entries_df = pd.DataFrame(new_entries)
+    new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
     history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
     set_cached_commit_history(repository, history_df)
     return history_df
