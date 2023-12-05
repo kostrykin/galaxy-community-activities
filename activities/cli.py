@@ -21,5 +21,6 @@ if __name__ == '__main__':
         repositories = [f'{fetch.GITHUB_URL}{args.repo}']
     
     for repository_url in repositories:
+        print(f'\n{repository_url} ↴')
         repo = fetch.get_github_repository(g, repository_url)
         fetch.get_commit_history(repo, args.verbose)

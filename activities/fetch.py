@@ -71,7 +71,7 @@ def get_cached_commit_history(repository: Repository) -> pd.DataFrame:
     if pathlib.Path(cache_filename).is_file():
         return pd.read_csv(cache_filename)
     else:
-        return pd.DataFrame(columns=['author', 'timestamp', 'categories'])
+        return pd.DataFrame(columns=['author', 'timestamp', 'categories', 'sha'])
 
 
 def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
@@ -109,16 +109,18 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
 def get_commit_history(repository: Repository, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
-    new_entries = dict(author=list(), timestamp=list(), categories=list())
+    new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
     for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
         if c.author is None: continue
-        pbar.set_postfix_str(c.sha[:7])
+        short_sha = c.sha[:7]
+        pbar.set_postfix_str(short_sha)
         datetime = pd.to_datetime(c.commit.author.date, utc=True)
         if datetime <= last_cache_update: break
         updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
         new_entries['author'].append(c.author.login)
         new_entries['timestamp'].append(datetime)
         new_entries['categories'].append(','.join(updated_tool_categories))
+        new_entries['sha'].append(short_sha)
     new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
     history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
     set_cached_commit_history(repository, history_df)
