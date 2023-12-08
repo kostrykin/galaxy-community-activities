@@ -113,7 +113,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
     return list(updated_tool_categories)
 
 
-def get_commit_history(repository: Repository, verbose: bool =False) -> pd.DataFrame:
+def get_commit_history(repository: Repository, before_year: Optional[int] =None, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
@@ -125,6 +125,7 @@ def get_commit_history(repository: Repository, verbose: bool =False) -> pd.DataF
             pbar.set_postfix_str(short_sha)
             datetime = pd.to_datetime(c.commit.author.date, utc=True)
             if datetime <= last_cache_update: break
+            if before_year is not None and datetime.year >= before_year: continue
             updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
             new_entries['author'].append(c.author.login)
             new_entries['timestamp'].append(datetime)
