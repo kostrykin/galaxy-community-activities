@@ -114,19 +114,20 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
     return list(updated_tool_categories)
 
 
-def get_commit_history(repository: Repository, before: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
+def get_commit_history(repository: Repository, until: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     cached_commits = frozenset(cached_df['sha'])
     assert len(cached_df) == len(cached_commits)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
     
-    get_commits_kwargs = dict(before=before) if before is not None else dict()
-    new_commits = repository.get_commits(**get_commits_kwargs).totalCount - len(cached_df)
+    get_commits_kwargs = dict(until=until) if until is not None else dict()
+    commits = repository.get_commits(**get_commits_kwargs)
+    new_commits_count = commits.totalCount - len(cached_df)
     new_commits_added = 0
     try:
-        for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
-            if new_commits_added >= new_commits: break
+        for c in (pbar := tqdm(commits, total=commits.totalCount)):
+            if new_commits_added >= new_commits_count: break
 
             short_sha = c.sha[:7]
             pbar.set_postfix_str(short_sha)
