@@ -2,6 +2,7 @@ import base64
 import re
 import pathlib
 import csv
+from datetime import datetime
 from typing import (
     Union,
     List,
@@ -113,26 +114,39 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
     return list(updated_tool_categories)
 
 
-def get_commit_history(repository: Repository, before_year: Optional[int] =None, verbose: bool =False) -> pd.DataFrame:
+def get_commit_history(repository: Repository, before: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
+    cached_commits = frozenset(cached_df['sha'])
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
     
+    get_commits_kwargs = dict(before=before) if before is not None else dict()
+    new_commits = repository.get_commits(**get_commits_kwargs).totalCount - len(cached_df)
+    new_commits_added = 0
     try:
         for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
-            if c.author is None: continue
             short_sha = c.sha[:7]
             pbar.set_postfix_str(short_sha)
             datetime = pd.to_datetime(c.commit.author.date, utc=True)
-            if datetime <= last_cache_update: break
-            if before_year is not None and datetime.year >= before_year: continue
-            updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
-            new_entries['author'].append(c.author.login)
-            new_entries['timestamp'].append(datetime)
-            new_entries['categories'].append(','.join(updated_tool_categories))
+
+            if short_sha in cached_commits: continue
+            new_commits_added += 1
+            if new_commits_added >= new_commits: break
+
+            if c.author is None:
+                new_entries['author'].append('')
+                new_entries['categories'].append('')
+            else:
+                updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
+                new_entries['author'].append(c.author.login)
+                new_entries['categories'].append(','.join(updated_tool_categories))
+
+            new_entries['timestamp'].append(str(datetime))
             new_entries['sha'].append(short_sha)
+
         new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
         history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
+        history_df.sort_values('timestamp', inplace=True)
         set_cached_commit_history(repository, history_df)
         return history_df
     

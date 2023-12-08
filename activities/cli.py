@@ -24,6 +24,8 @@ if __name__ == '__main__':
 
     g = fetch.Github(args.api)
 
+    before = fetch.datetime(year=args.before, month=1, day=1) if args.before is not None else None
+
     try:
         if args.repo is None:
             repositories = fetch.get_tool_github_repositories(g)
@@ -33,11 +35,12 @@ if __name__ == '__main__':
         for repository_url in repositories:
             print(f'\n{repository_url} ↴')
             repo = fetch.get_github_repository(g, repository_url)
-            fetch.get_commit_history(repo, args.before, args.verbose)
+            fetch.get_commit_history(repo, before, args.verbose)
 
     except fetch.FetchError as ex:
         suid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         dump_filename = f'.dump-{suid}.dill'
         print(f'Dumping context info to: {dump_filename}')
-        with open(dump_filename, 'w') as fp:
-            dill.dump(ex.context, fp)
+        with open(dump_filename, 'wb') as fp:
+            dill.dump(ex.context, fp, byref=True)
+        raise ex.caused_by
