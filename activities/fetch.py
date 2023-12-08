@@ -117,6 +117,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
 def get_commit_history(repository: Repository, before: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     cached_commits = frozenset(cached_df['sha'])
+    assert len(cached_df) == len(cached_commits)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
     
@@ -125,13 +126,14 @@ def get_commit_history(repository: Repository, before: Optional[datetime] =None,
     new_commits_added = 0
     try:
         for c in (pbar := tqdm(repository.get_commits(), total=repository.get_commits().totalCount)):
+            if new_commits_added >= new_commits: break
+
             short_sha = c.sha[:7]
             pbar.set_postfix_str(short_sha)
             datetime = pd.to_datetime(c.commit.author.date, utc=True)
 
             if short_sha in cached_commits: continue
             new_commits_added += 1
-            if new_commits_added >= new_commits: break
 
             if c.author is None:
                 new_entries['author'].append('')
@@ -146,7 +148,7 @@ def get_commit_history(repository: Repository, before: Optional[datetime] =None,
 
         new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
         history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
-        history_df.sort_values('timestamp', inplace=True)
+        history_df.sort_values(['timestamp', 'sha'], inplace=True)
         set_cached_commit_history(repository, history_df)
         return history_df
     
