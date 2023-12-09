@@ -126,26 +126,28 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None, 
     new_commits_count = commits.totalCount - len(cached_df)
     new_commits_added = 0
     try:
-        for c in (pbar := tqdm(commits, total=commits.totalCount)):
-            if new_commits_added >= new_commits_count: break
+        with tqdm(total=new_commits_count) as pbar:
+            for c in commits:
+                if new_commits_added >= new_commits_count: break
 
-            short_sha = c.sha[:7]
-            pbar.set_postfix_str(short_sha)
-            datetime = pd.to_datetime(c.commit.author.date, utc=True)
+                short_sha = c.sha[:7]
+                pbar.set_postfix_str(short_sha)
+                datetime = pd.to_datetime(c.commit.author.date, utc=True)
 
-            if short_sha in cached_commits: continue
-            new_commits_added += 1
+                if short_sha in cached_commits: continue
+                new_commits_added += 1
+                pbar.update(1)
 
-            if c.author is None:
-                new_entries['author'].append('')
-                new_entries['categories'].append('')
-            else:
-                updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
-                new_entries['author'].append(c.author.login)
-                new_entries['categories'].append(','.join(updated_tool_categories))
+                if c.author is None:
+                    new_entries['author'].append('')
+                    new_entries['categories'].append('')
+                else:
+                    updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
+                    new_entries['author'].append(c.author.login)
+                    new_entries['categories'].append(','.join(updated_tool_categories))
 
-            new_entries['timestamp'].append(str(datetime))
-            new_entries['sha'].append(short_sha)
+                new_entries['timestamp'].append(str(datetime))
+                new_entries['sha'].append(short_sha)
 
         new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
         history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
