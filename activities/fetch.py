@@ -95,6 +95,7 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
 
 def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Optional[tqdm]) -> List[str]:
     updated_tool_categories = set()
+    if pbar is not None: pbar.set_description('Fetching tree')
     tree = repository.get_git_tree(sha=commit.sha, recursive=True)
     tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
     for file in commit.files:
@@ -106,7 +107,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
                 shed_data = yaml.safe_load(shed_file)
                 updated_tool_categories |= set(shed_data['categories'])
                 break
-    return list(updated_tool_categories)
+    return list(sorted(updated_tool_categories))
 
 
 def get_commit_history(repository: Repository, until: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
