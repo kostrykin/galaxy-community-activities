@@ -93,16 +93,16 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
     return str(subpath) in [str(path)] + [str(p) for p in path.parents[:-1]]
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Optional[tqdm]) -> List[str]:
+def get_updated_tool_categories(repository: Repository, commit: Commit, status: Optional[tqdm]) -> List[str]:
     updated_tool_categories = set()
-    if pbar is not None: pbar.set_description('Fetching tree')
+    if status is not None: status.set_description_str('Fetching tree')
     tree = repository.get_git_tree(sha=commit.sha, recursive=True)
     tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
             if str(directory) in tool_directories:
                 shed_filepath = str(directory / SHED_FILENAME)
-                if pbar is not None: pbar.set_description(f'Peeking {shed_filepath}')
+                if status is not None: status.set_description_str(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
                 shed_data = yaml.safe_load(shed_file)
                 updated_tool_categories |= set(shed_data['categories'])
@@ -110,7 +110,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Op
     return list(sorted(updated_tool_categories))
 
 
-def get_commit_history(repository: Repository, until: Optional[datetime] =None, verbose: bool =False) -> pd.DataFrame:
+def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     cached_commits = frozenset(cached_df['sha'])
     assert len(cached_df) == len(cached_commits)
@@ -122,28 +122,33 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None, 
     new_commits_count = commits.totalCount - len(cached_df)
     new_commits_added = 0
     try:
-        with tqdm(total=new_commits_count) as pbar:
-            for c in commits:
-                if new_commits_added >= new_commits_count: break
+        pbar = tqdm(total=new_commits_count, position=0)
+        status = tqdm(total=0, bar_format='{desc}', position=1)
 
-                short_sha = c.sha[:7]
-                pbar.set_postfix_str(short_sha)
-                datetime = pd.to_datetime(c.commit.author.date, utc=True)
+        for c in commits:
+            if new_commits_added >= new_commits_count: break
 
-                if short_sha in cached_commits: continue
-                new_commits_added += 1
-                pbar.update(1)
+            short_sha = c.sha[:7]
+            pbar.set_postfix_str(short_sha)
+            datetime = pd.to_datetime(c.commit.author.date, utc=True)
 
-                if c.author is None:
-                    new_entries['author'].append('')
-                    new_entries['categories'].append('')
-                else:
-                    updated_tool_categories = get_updated_tool_categories(repository, c, pbar if verbose else None)
-                    new_entries['author'].append(c.author.login)
-                    new_entries['categories'].append(','.join(updated_tool_categories))
+            if short_sha in cached_commits: continue
+            new_commits_added += 1
+            pbar.update(1)
 
-                new_entries['timestamp'].append(str(datetime))
-                new_entries['sha'].append(short_sha)
+            if c.author is None:
+                new_entries['author'].append('')
+                new_entries['categories'].append('')
+            else:
+                updated_tool_categories = get_updated_tool_categories(repository, c, status)
+                new_entries['author'].append(c.author.login)
+                new_entries['categories'].append(','.join(updated_tool_categories))
+
+            new_entries['timestamp'].append(str(datetime))
+            new_entries['sha'].append(short_sha)
+
+        pbar.close()
+        status.close()
 
         new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
         history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df

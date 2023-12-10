@@ -15,7 +15,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--api', help='GitHub access token', default=None)
     parser.add_argument('--repo', help='Run for a single repository (owner/name)', default=None)
-    parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--until', type=int, help='Only consider commits until the given year', default=None)
     args = parser.parse_args()
 
@@ -35,7 +34,7 @@ if __name__ == '__main__':
         for repository_url in repositories:
             print(f'\n{repository_url} ↴')
             repo = fetch.get_github_repository(g, repository_url)
-            fetch.get_commit_history(repo, until, args.verbose)
+            fetch.get_commit_history(repo, until)
 
     except fetch.FetchError as ex:
         suid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
