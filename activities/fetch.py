@@ -110,52 +110,57 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
     return list(sorted(updated_tool_categories))
 
 
-def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
-    cached_df = get_cached_commit_history(repository)
-    cached_commits = frozenset(cached_df[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
-    assert len(cached_df) == len(cached_commits)
-    last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
-    new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
+def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+    previous_commits_set = frozenset(previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
+    assert len(previous_commits) == len(previous_commits_set)
     
     get_commits_kwargs = dict(until=until) if until is not None else dict()
     commits = repository.get_commits(**get_commits_kwargs)
-    new_commits_count = commits.totalCount - len(cached_df)
-    new_commits_added = 0
+    new_commits_count = commits.totalCount - len(previous_commits)
+    new_commits_processed = 0
     try:
         pbar = tqdm(total=new_commits_count, position=0)
         status = tqdm(total=0, bar_format='{desc}', position=1)
 
         for c in commits:
-            if new_commits_added >= new_commits_count: break
+            if new_commits_processed >= new_commits_count: break
 
             short_sha = c.sha[:7]
             pbar.set_postfix_str(short_sha)
             datetime = pd.to_datetime(c.commit.author.date, utc=True)
             status.set_description_str(f'Current position: {datetime.strftime("%Y/%m/%d")}')
 
-            if (short_sha, str(datetime)) in cached_commits: continue
+            if (short_sha, str(datetime)) in previous_commits_set: continue
             new_commits_added += 1
             pbar.update(1)
 
-            if c.author is None:
-                new_entries['author'].append('')
-                new_entries['categories'].append('')
-            else:
-                updated_tool_categories = get_updated_tool_categories(repository, c, status)
-                new_entries['author'].append(c.author.login)
-                new_entries['categories'].append(','.join(updated_tool_categories))
-
-            new_entries['timestamp'].append(str(datetime))
-            new_entries['sha'].append(short_sha)
+            yield c, short_sha, datetime
 
         pbar.close()
         status.close()
-
-        new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
-        history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
-        history_df.sort_values(['timestamp', 'sha'], inplace=True)
-        set_cached_commit_history(repository, history_df)
-        return history_df
     
     except Exception as ex:
         raise FetchError(caused_by=ex, context=locals())
+
+
+def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
+    cached_df = get_cached_commit_history(repository)
+    new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
+
+    for c, short_sha, datetime in process_new_commits(repository, cached_df, until):
+        if c.author is None:
+            new_entries['author'].append('')
+            new_entries['categories'].append('')
+        else:
+            updated_tool_categories = get_updated_tool_categories(repository, c, status)
+            new_entries['author'].append(c.author.login)
+            new_entries['categories'].append(','.join(updated_tool_categories))
+
+        new_entries['timestamp'].append(str(datetime))
+        new_entries['sha'].append(short_sha)
+
+    new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
+    history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
+    history_df.sort_values(['timestamp', 'sha'], inplace=True)
+    set_cached_commit_history(repository, history_df)
+    return history_df
