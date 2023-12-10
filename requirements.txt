@@ -2,4 +2,3 @@ pandas
 PyGithub
 pyyaml
 tqdm
-dill

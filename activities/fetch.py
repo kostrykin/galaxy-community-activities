@@ -20,18 +20,11 @@ from github import Github
 from github.ContentFile import ContentFile
 from github.Repository import Repository
 from github.Commit import Commit
-from github.GithubException import UnknownObjectException
+from github.GithubException import IncompletableObject
 
 
 GITHUB_URL = 'https://github.com/'
 SHED_FILENAME = '.shed.yml'
-
-
-class FetchError(Exception):
-
-    def __init__(self, caused_by, context):
-        self.caused_by = caused_by
-        self.context = context
 
 
 def get_string_content(cf: ContentFile) -> str:
@@ -135,19 +128,19 @@ class process_new_commits:
     The stock of previously known commits is represented by a pandas dataframe, and is expected to contain at least the columns `sha` and `timestamp`, where the values in the `timestamp` column correspond to the `str` representation of the datetime of each commit.
     """
 
-    def __init__(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+    def __init__(self, repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
         self.repository = repository
         self.previous_commits = previous_commits
         self.until = until
         self.status = None
 
     def __iter__(self):
-        previous_commits_set = frozenset(previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
-        assert len(previous_commits) == len(previous_commits_set)
+        previous_commits_set = frozenset(self.previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
+        assert len(self.previous_commits) == len(previous_commits_set)
         
-        get_commits_kwargs = dict(until=until) if until is not None else dict()
-        commits = repository.get_commits(**get_commits_kwargs)
-        new_commits_count = commits.totalCount - len(previous_commits)
+        get_commits_kwargs = dict(until=self.until) if self.until is not None else dict()
+        commits = self.repository.get_commits(**get_commits_kwargs)
+        new_commits_count = commits.totalCount - len(previous_commits_set)
         new_commits_processed = 0
 
         try:
@@ -167,14 +160,21 @@ class process_new_commits:
                 pbar.update(1)
 
                 yield c, short_sha, datetime
-        
-        except Exception as ex:
-            raise FetchError(caused_by=ex, context=locals())
 
         finally:
             pbar.close()
             self.status.close()
             self.status = None
+
+
+def get_commit_author(commit: Commit) -> str:
+    if commit.author is None:
+        return None
+    else:
+        try:
+            return commit.author.login
+        except IncompletableObject:
+            return None
 
 
 def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
@@ -190,7 +190,8 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
         if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
             tool_directories = None
 
-        if c.author is None:
+        author = get_commit_author(c)
+        if author is None:
 
             new_entries['author'].append('')
             new_entries['categories'].append('')
@@ -200,7 +201,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
             # Get list of updated tool categories, and update the currently known tool directories
             updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, pnc.status, tool_directories)
 
-            new_entries['author'].append(c.author.login)
+            new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
 
         new_entries['timestamp'].append(str(datetime))
