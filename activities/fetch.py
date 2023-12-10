@@ -95,22 +95,17 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
 
 def get_updated_tool_categories(repository: Repository, commit: Commit, pbar: Optional[tqdm]) -> List[str]:
     updated_tool_categories = set()
-    tool_directories, nontool_directories = list(), list()
+    tree = repository.get_git_tree(sha=commit.sha, recursive=True)
+    tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
     for file in commit.files:
-        updated_directories = pathlib.Path(file.filename).parents[:-1]
-        if any([is_subpath(tool_directory, updated_directories[0]) for tool_directory in tool_directories]): continue
-        for updated_directory in updated_directories:
-            if updated_directory in nontool_directories: continue
-            try:
-                shed_filepath = str(updated_directory / SHED_FILENAME)
+        for directory in pathlib.Path(file.filename).parents[:-1]:
+            if str(directory) in tool_directories:
+                shed_filepath = str(directory / SHED_FILENAME)
                 if pbar is not None: pbar.set_description(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
                 shed_data = yaml.safe_load(shed_file)
                 updated_tool_categories |= set(shed_data['categories'])
-                tool_directories.append(updated_directory)
                 break
-            except UnknownObjectException:
-                nontool_directories.append(updated_directory)
     return list(updated_tool_categories)
 
 
