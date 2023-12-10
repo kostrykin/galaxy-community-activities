@@ -124,48 +124,57 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
     return list(sorted(updated_tool_categories)), tool_directories
 
 
-def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+class process_new_commits:
     """
     Generator which yields all new commits in a repository.
 
-    Each new commit is yielded along with the short SHA, datetime, and a tqdm object for status reporting.
+    Each new commit is yielded along with its short SHA and datetime.
     Optionally, only new commits until a specified datetime are considered.
     New commits are determined by comparing each commit to the stock of previously known commits.
     The comparison is performed using the short SHA along with the datetime of the commits.
     The stock of previously known commits is represented by a pandas dataframe, and is expected to contain at least the columns `sha` and `timestamp`, where the values in the `timestamp` column correspond to the `str` representation of the datetime of each commit.
     """
-    previous_commits_set = frozenset(previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
-    assert len(previous_commits) == len(previous_commits_set)
-    
-    get_commits_kwargs = dict(until=until) if until is not None else dict()
-    commits = repository.get_commits(**get_commits_kwargs)
-    new_commits_count = commits.totalCount - len(previous_commits)
-    new_commits_processed = 0
 
-    try:
-        pbar = tqdm(total=new_commits_count, position=0)
-        status = tqdm(total=0, bar_format='{desc}', position=1)
+    def __init__(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+        self.repository = repository
+        self.previous_commits = previous_commits
+        self.until = until
+        self.status = None
 
-        for c in commits:
-            if new_commits_processed >= new_commits_count: break
+    def __iter__(self):
+        previous_commits_set = frozenset(previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
+        assert len(previous_commits) == len(previous_commits_set)
+        
+        get_commits_kwargs = dict(until=until) if until is not None else dict()
+        commits = repository.get_commits(**get_commits_kwargs)
+        new_commits_count = commits.totalCount - len(previous_commits)
+        new_commits_processed = 0
 
-            short_sha = c.sha[:7]
-            pbar.set_postfix_str(short_sha)
-            datetime = pd.to_datetime(c.commit.author.date, utc=True)
-            status.set_description_str(f'Current position: {datetime.strftime("%Y/%m/%d")}')
+        try:
+            pbar = tqdm(total=new_commits_count, position=0)
+            self.status = tqdm(total=0, bar_format='{desc}', position=1)
 
-            if (short_sha, str(datetime)) in previous_commits_set: continue
-            new_commits_processed += 1
-            pbar.update(1)
+            for c in commits:
+                if new_commits_processed >= new_commits_count: break
 
-            yield c, short_sha, datetime, status
-    
-    except Exception as ex:
-        raise FetchError(caused_by=ex, context=locals())
+                short_sha = c.sha[:7]
+                pbar.set_postfix_str(short_sha)
+                datetime = pd.to_datetime(c.commit.author.date, utc=True)
+                self.status.set_description_str(f'Current position: {datetime.strftime("%Y/%m/%d")}')
 
-    finally:
-        pbar.close()
-        status.close()
+                if (short_sha, str(datetime)) in previous_commits_set: continue
+                new_commits_processed += 1
+                pbar.update(1)
+
+                yield c, short_sha, datetime
+        
+        except Exception as ex:
+            raise FetchError(caused_by=ex, context=locals())
+
+        finally:
+            pbar.close()
+            self.status.close()
+            self.status = None
 
 
 def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
@@ -175,7 +184,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
     # Currently known tool directories, initially unknown
     tool_directories = None
 
-    for c, short_sha, datetime, status in process_new_commits(repository, cached_df, until):
+    for c, short_sha, datetime in (pnc := process_new_commits(repository, cached_df, until)):
 
         # If a shed file is modified, then the tool directories become unknown without further inspection
         if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
@@ -189,7 +198,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
         else:
 
             # Get list of updated tool categories, and update the currently known tool directories
-            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, status, tool_directories)
+            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, pnc.status, tool_directories)
 
             new_entries['author'].append(c.author.login)
             new_entries['categories'].append(','.join(updated_tool_categories))
