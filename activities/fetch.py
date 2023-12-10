@@ -124,6 +124,15 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
 
 
 def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+    """
+    Generator which yields all new commits in a repository.
+
+    Each new commit is yielded along with its short SHA and datetime.
+    Optionally, only new commits until a specified datetime are considered.
+    New commits are determined by comparing each commit to the stock of previously known commits.
+    The comparison is performed using the short SHA along with the datetime of the commits.
+    The stock of previously known commits is represented by a pandas dataframe, and is expected to contain at least the columns `sha` and `timestamp`, where the values in the `timestamp` column correspond to the `str` representation of the datetime of each commit.
+    """
     previous_commits_set = frozenset(previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
     assert len(previous_commits) == len(previous_commits_set)
     
