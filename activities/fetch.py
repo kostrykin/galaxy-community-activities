@@ -6,8 +6,9 @@ from datetime import datetime
 from typing import (
     Union,
     List,
-    FrozenSet
-    Optional
+    FrozenSet,
+    Tuple,
+    Optional,
 )
 
 import pandas as pd
@@ -127,7 +128,7 @@ def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, 
     """
     Generator which yields all new commits in a repository.
 
-    Each new commit is yielded along with its short SHA and datetime.
+    Each new commit is yielded along with the short SHA, datetime, and a tqdm object for status reporting.
     Optionally, only new commits until a specified datetime are considered.
     New commits are determined by comparing each commit to the stock of previously known commits.
     The comparison is performed using the short SHA along with the datetime of the commits.
@@ -140,6 +141,7 @@ def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, 
     commits = repository.get_commits(**get_commits_kwargs)
     new_commits_count = commits.totalCount - len(previous_commits)
     new_commits_processed = 0
+
     try:
         pbar = tqdm(total=new_commits_count, position=0)
         status = tqdm(total=0, bar_format='{desc}', position=1)
@@ -156,13 +158,14 @@ def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, 
             new_commits_processed += 1
             pbar.update(1)
 
-            yield c, short_sha, datetime
-
-        pbar.close()
-        status.close()
+            yield c, short_sha, datetime, status
     
     except Exception as ex:
         raise FetchError(caused_by=ex, context=locals())
+
+    finally:
+        pbar.close()
+        status.close()
 
 
 def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
@@ -172,7 +175,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
     # Currently known tool directories, initially unknown
     tool_directories = None
 
-    for c, short_sha, datetime in process_new_commits(repository, cached_df, until):
+    for c, short_sha, datetime, status in process_new_commits(repository, cached_df, until):
 
         # If a shed file is modified, then the tool directories become unknown without further inspection
         if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
