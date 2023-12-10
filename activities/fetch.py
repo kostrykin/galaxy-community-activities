@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import (
     Union,
     List,
+    FrozenSet
     Optional
 )
 
@@ -93,11 +94,22 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
     return str(subpath) in [str(path)] + [str(p) for p in path.parents[:-1]]
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, status: Optional[tqdm]) -> List[str]:
+def get_updated_tool_categories(repository: Repository, commit: Commit, status: Optional[tqdm], tool_directories: Optional[FrozenSet[str]] =None) -> Tuple[List[str], FrozenSet[str]]:
+    """
+    Get list of the tool categories for which tools have been added, updated, or removed.
+
+    The function searches the filesystem tree for directories corresponding to Galaxy tools, and then checks whether any files within the determined directories have been altered.
+    In case that the tool directories are known a priori, it is not necessary to search the filesystem tree.
+    Using None for `tool_directories` means that the tool directories are not known a priori.
+    """
     updated_tool_categories = set()
-    if status is not None: status.set_description_str('Fetching tree')
-    tree = repository.get_git_tree(sha=commit.sha, recursive=True)
-    tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
+
+    # Fetch the directory tree if the tool directories are not known a priori
+    if tool_directories is None:
+        if status is not None: status.set_description_str('Fetching tree')
+        tree = repository.get_git_tree(sha=commit.sha, recursive=True)
+        tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
+
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
             if str(directory) in tool_directories:
@@ -107,7 +119,8 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
                 shed_data = yaml.safe_load(shed_file)
                 updated_tool_categories |= set(shed_data['categories'])
                 break
-    return list(sorted(updated_tool_categories))
+
+    return list(sorted(updated_tool_categories)), tool_directories
 
 
 def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
@@ -131,7 +144,7 @@ def process_new_commits(repository: Repository, previous_commits: pd.DataFrame, 
             status.set_description_str(f'Current position: {datetime.strftime("%Y/%m/%d")}')
 
             if (short_sha, str(datetime)) in previous_commits_set: continue
-            new_commits_added += 1
+            new_commits_processed += 1
             pbar.update(1)
 
             yield c, short_sha, datetime
@@ -147,12 +160,25 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
     cached_df = get_cached_commit_history(repository)
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
 
+    # Currently known tool directories, initially unknown
+    tool_directories = None
+
     for c, short_sha, datetime in process_new_commits(repository, cached_df, until):
+
+        # If a shed file is modified, then the tool directories become unknown without further inspection
+        if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
+            tool_directories = None
+
         if c.author is None:
+
             new_entries['author'].append('')
             new_entries['categories'].append('')
+
         else:
-            updated_tool_categories = get_updated_tool_categories(repository, c, status)
+
+            # Get list of updated tool categories, and update the currently known tool directories
+            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, status, tool_directories)
+
             new_entries['author'].append(c.author.login)
             new_entries['categories'].append(','.join(updated_tool_categories))
 
