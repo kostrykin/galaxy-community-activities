@@ -112,7 +112,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
 
 def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
-    cached_commits = frozenset(cached_df['sha'])
+    cached_commits = frozenset(cached_df[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
     assert len(cached_df) == len(cached_commits)
     last_cache_update = pd.to_datetime(0, utc=True) if len(cached_df) == 0 else pd.to_datetime(cached_df['timestamp'], utc=True).max()
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
@@ -131,8 +131,9 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
             short_sha = c.sha[:7]
             pbar.set_postfix_str(short_sha)
             datetime = pd.to_datetime(c.commit.author.date, utc=True)
+            status.set_description_str(f'Current position: {datetime.strftime("%Y/%m/%d")}')
 
-            if short_sha in cached_commits: continue
+            if (short_sha, str(datetime)) in cached_commits: continue
             new_commits_added += 1
             pbar.update(1)
 
