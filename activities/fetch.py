@@ -88,21 +88,17 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
     return str(subpath) in [str(path)] + [str(p) for p in path.parents[:-1]]
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, status: Optional[tqdm], tool_directories: Optional[FrozenSet[str]] =None) -> Tuple[List[str], FrozenSet[str]]:
+def get_tool_directories(repository: Repository, commit: Commit, status: Optional[tqdm]=None) -> FrozenSet[str]:
+    if status is not None: status.set_description_str('Fetching tree')
+    tree = repository.get_git_tree(sha=commit.sha, recursive=True)
+    return frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
+
+
+def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> Tuple[List[str], FrozenSet[str]]:
     """
     Get list of the tool categories for which tools have been added, updated, or removed.
-
-    The function searches the filesystem tree for directories corresponding to Galaxy tools, and then checks whether any files within the determined directories have been altered.
-    In case that the tool directories are known a priori, it is not necessary to search the filesystem tree.
-    Using None for `tool_directories` means that the tool directories are not known a priori.
     """
     updated_tool_categories = set()
-
-    # Fetch the directory tree if the tool directories are not known a priori
-    if tool_directories is None:
-        if status is not None: status.set_description_str('Fetching tree')
-        tree = repository.get_git_tree(sha=commit.sha, recursive=True)
-        tool_directories = frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -137,7 +133,7 @@ class process_new_commits:
     The stock of previously known commits is represented by a pandas dataframe, and is expected to contain at least the columns `sha` and `timestamp`, where the values in the `timestamp` column correspond to the `str` representation of the datetime of each commit.
     """
 
-    def __init__(self, repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime] =None):
+    def __init__(self, repository: Repository, previous_commits: pd.DataFrame, until: Optional[datetime]=None):
         self.repository = repository
         self.previous_commits = previous_commits
         self.until = until
@@ -186,7 +182,7 @@ def get_commit_author(commit: Commit) -> str:
             return None
 
 
-def get_commit_history(repository: Repository, until: Optional[datetime] =None) -> pd.DataFrame:
+def get_commit_history(repository: Repository, until: Optional[datetime]=None) -> pd.DataFrame:
     cached_df = get_cached_commit_history(repository)
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
 
@@ -196,10 +192,10 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
     # Number of commits back in time, since shed files were last modified
     shed_age = 0
 
-    for c, short_sha, datetime in (pnc := process_new_commits(repository, cached_df, until)):
+    for commit, short_sha, datetime in (pnc := process_new_commits(repository, cached_df, until)):
 
         # If a shed file is modified, then the tool directories become unknown without further inspection
-        if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
+        if any([file.filename.endswith('/' + SHED_FILENAME) for file in commit.files]):
             tool_directories = None
             shed_age = 0
 
@@ -209,7 +205,11 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
             # Example: 1 means that `c` is the first commit since the last modification
             shed_age += 1
 
-        author = get_commit_author(c)
+        # Fetch the directory tree if the tool directories are not known from previous commits
+        if shed_age <= 1:
+            tool_directories = get_tool_directories(repository, commit, pnc.status)
+
+        author = get_commit_author(commit)
         if author is None:
 
             new_entries['author'].append('')
@@ -218,7 +218,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
         else:
 
             # Get list of updated tool categories, and update the currently known tool directories
-            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, pnc.status, tool_directories if shed_age > 1 else None)
+            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
