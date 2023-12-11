@@ -7,6 +7,7 @@ from typing import (
     Union,
     List,
     FrozenSet,
+    Set,
     Tuple,
     Optional,
 )
@@ -102,7 +103,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
     """
     Get list of the tool categories for which tools have been added, updated, or removed.
     """
-    updated_tool_categories = set()
+    updated_tool_categories: Set[str] = set()
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -191,7 +192,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
 
     # Currently known tool directories, initially unknown
-    tool_directories = None
+    tool_directories: FrozenSet[str] = None
 
     # Number of commits back in time, since shed files were last modified
     shed_age = 0
