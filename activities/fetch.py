@@ -184,11 +184,21 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
     # Currently known tool directories, initially unknown
     tool_directories = None
 
+    # Number of commits back in time, since shed files were last modified
+    shed_age = 0
+
     for c, short_sha, datetime in (pnc := process_new_commits(repository, cached_df, until)):
 
         # If a shed file is modified, then the tool directories become unknown without further inspection
         if any([file.filename.endswith('/' + SHED_FILENAME) for file in c.files]):
             tool_directories = None
+            shed_age = 0
+
+        else:
+
+            # Keep track of the number of commits back in time, since shed files were last modified
+            # Example: 1 means that `c` is the first commit since the last modification
+            shed_age += 1
 
         author = get_commit_author(c)
         if author is None:
@@ -199,7 +209,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime] =None) 
         else:
 
             # Get list of updated tool categories, and update the currently known tool directories
-            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, pnc.status, tool_directories)
+            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, c, pnc.status, tool_directories if shed_age > 1 else None)
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
