@@ -23,7 +23,7 @@ if __name__ == '__main__':
     until = fetch.datetime(year=args.until, month=12, day=31, hour=23, minute=59, second=59) if args.until is not None else None
 
     if args.repo is None:
-        repositories = fetch.get_tool_github_repositories(g)
+        repositories = fetch.get_github_repositories(g)
     else:
         repositories = [f'{fetch.GITHUB_URL}{args.repo}']
     
