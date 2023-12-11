@@ -110,8 +110,17 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, status: 
                 shed_filepath = str(directory / SHED_FILENAME)
                 if status is not None: status.set_description_str(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
-                shed_data = yaml.safe_load(shed_file)
-                updated_tool_categories |= set(shed_data['categories'])
+
+                # Read the updated tool categories and add to set
+                try:
+                    shed_data = yaml.safe_load(shed_file)
+                    updated_tool_categories |= set(shed_data.get('categories', list()))
+
+                # Do nothing if the file is not valid YAML
+                except yaml.YAMLError:
+                    pass
+
+                # We are done with this file, since a shed file was found
                 break
 
     return list(sorted(updated_tool_categories)), tool_directories
