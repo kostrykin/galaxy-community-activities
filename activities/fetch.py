@@ -2,6 +2,7 @@ import base64
 import re
 import pathlib
 import csv
+import urllib.request
 from datetime import datetime
 from typing import (
     Union,
@@ -53,8 +54,8 @@ def get_github_repositories(g: Github) -> List[str]:
         if re.match(GITHUB_REPOSITORY_PATTERN, repo_spec):
             repo_list.append(repo_spec)
         else:
-            for repo_line in urllib2.urlopen(repo_spec):
-                repo_line = repo_line.strip()
+            for repo_line in urllib.request.urlopen(repo_spec):
+                repo_line = repo_line.decode('utf-8').strip()
                 if len(repo_line) > 0:
                     repo_list.append(repo_line)
     return repo_list
