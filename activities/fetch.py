@@ -116,8 +116,8 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 # Read the updated tool categories and add to set
                 try:
                     shed_data = yaml.safe_load(shed_file)
-                    categories = shed_data.get('categories', list())
-                    assert all(map(lambda item: isinstance(item, str), categories))
+                    categories = shed_data.get('categories')
+                    assert categories is not None and all(map(lambda item: isinstance(item, str), categories))
                     updated_tool_categories |= set(categories)
 
                 # Do nothing if the file is not valid YAML or otherwise malformed
