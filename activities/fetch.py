@@ -127,7 +127,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 # We are done with this file, since a shed file was found
                 break
 
-    return list(sorted(updated_tool_categories)), tool_directories
+    return list(sorted(updated_tool_categories))
 
 
 class process_new_commits:
@@ -213,10 +213,6 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
             # Example: 1 means that `c` is the first commit since the last modification
             shed_age += 1
 
-        # Fetch the directory tree if the tool directories are not known from previous commits
-        if shed_age <= 1:
-            tool_directories = get_tool_directories(repository, commit, pnc.status)
-
         author = get_commit_author(commit)
         if author is None:
 
@@ -225,8 +221,11 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
 
         else:
 
+            # Fetch the directory tree
+            tool_directories = get_tool_directories(repository, commit, pnc.status)
+
             # Get list of updated tool categories, and update the currently known tool directories
-            updated_tool_categories, tool_directories = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+            updated_tool_categories = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
