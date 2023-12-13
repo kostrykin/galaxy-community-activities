@@ -116,6 +116,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 # Read the updated tool categories and add to set
                 try:
                     shed_data = yaml.safe_load(shed_file)
+                    assert shed_data is not None
                     categories = shed_data.get('categories')
                     assert categories is not None and all(map(lambda item: isinstance(item, str), categories))
                     updated_tool_categories |= set(categories)
