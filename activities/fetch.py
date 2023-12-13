@@ -55,7 +55,7 @@ def get_github_repositories(g: Github) -> List[str]:
             repo_list.append(repo_spec)
         else:
             for repo_line in urllib.request.urlopen(repo_spec):
-                repo_line = repo_line.decode('utf-8').strip()
+                repo_line = repo_line.decode('utf-8').split('#')[0].strip()
                 if len(repo_line) > 0:
                     repo_list.append(repo_line)
     return repo_list
