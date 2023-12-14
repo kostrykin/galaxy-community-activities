@@ -22,7 +22,10 @@ from github import Github
 from github.ContentFile import ContentFile
 from github.Repository import Repository
 from github.Commit import Commit
-from github.GithubException import IncompletableObject
+from github.GithubException import (
+    IncompletableObject,
+    UnknownObjectException,
+)
 
 
 GITHUB_URL = 'https://github.com/'
@@ -96,8 +99,11 @@ def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
 
 def get_tool_directories(repository: Repository, commit: Commit, status: Optional[tqdm]=None) -> FrozenSet[str]:
     if status is not None: status.set_description_str('Fetching tree')
-    tree = repository.get_git_tree(sha=commit.sha, recursive=True)
-    return frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
+    try:
+        tree = repository.get_git_tree(sha=commit.sha, recursive=True)
+        return frozenset([str(pathlib.Path(te.path).parents[0]) for te in tree.tree if te.path.endswith('/' + SHED_FILENAME)])
+    except UnknownObjectException:
+        return frozenset()
 
 
 def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> Tuple[List[str], FrozenSet[str]]:
