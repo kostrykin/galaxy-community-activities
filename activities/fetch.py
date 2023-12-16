@@ -71,7 +71,13 @@ def get_github_repository(g: Github, repository_url: str) -> Repository:
     assert repository_url_match is not None, f'Invalid URL pattern: {repository_url}'
     owner = repository_url_match.group(1)
     name = repository_url_match.group(2)
-    return g.get_repo(f'{owner}/{name}')
+    try:
+        return g.get_repo(f'{owner}/{name}')
+    except UnknownObjectException:
+        if name.endswith('.git'):
+            return g.get_repo(f'{owner}/{name[:-4]}')
+        else:
+            raise
 
 
 def get_cache_filepath(repository: Repository) -> str:
