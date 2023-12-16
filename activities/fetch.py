@@ -3,6 +3,7 @@ import re
 import pathlib
 import csv
 import urllib.request
+import collections
 from datetime import datetime
 from typing import (
     Union,
@@ -161,8 +162,17 @@ class process_new_commits:
         self.status = None
 
     def __iter__(self):
-        previous_commits_set = frozenset(self.previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist())
-        assert len(self.previous_commits) == len(previous_commits_set)
+        previous_commits_list = self.previous_commits[['sha', 'timestamp']].apply(tuple, axis=1).tolist()
+        previous_commits_set = frozenset(previous_commits_list)
+        try:
+            assert len(self.previous_commits) == len(previous_commits_set), f'{len(self.previous_commits)} != {len(previous_commits_set)}'
+        except AssertionError:
+            print('\nConflicting commits:')
+            for c, hc in dict(collections.Counter(previous_commits_list)).items():
+                if hc > 1:
+                    print(f'- {c[0]} {c[1]}')
+            print('')
+            raise
         
         get_commits_kwargs = dict(until=self.until) if self.until is not None else dict()
         commits = self.repository.get_commits(**get_commits_kwargs)
@@ -246,8 +256,9 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
         new_entries['timestamp'].append(str(datetime))
         new_entries['sha'].append(short_sha)
 
-    new_entries_df = pd.DataFrame(new_entries).iloc[::-1]
+    pk = ['timestamp', 'sha']
+    new_entries_df = pd.DataFrame(new_entries).iloc[::-1].drop_duplicates(pk)
     history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
-    history_df.sort_values(['timestamp', 'sha'], inplace=True)
+    history_df.sort_values(pk, inplace=True)
     set_cached_commit_history(repository, history_df)
     return history_df
