@@ -31,7 +31,7 @@ if __name__ == '__main__':
     if args.list:
         print('\n'.join([f'- {repo}' for repo in repositories]))
     else:
-        for repository_url in repositories:
-            print(f'\n{repository_url} ↴')
+        for ridx, repository_url in enumerate(repositories):
+            print(f'\n({ridx + 1}/{len(repositories)}) {repository_url} ↴')
             repo = fetch.get_github_repository(g, repository_url)
             fetch.get_commit_history(repo, until)
