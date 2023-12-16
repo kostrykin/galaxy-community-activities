@@ -56,7 +56,7 @@ def get_github_repositories(g: Github) -> List[str]:
     repo_list: List[str] = list()
     for repo_spec in data['repositories']:
         if re.match(GITHUB_REPOSITORY_PATTERN, repo_spec):
-            repo_list.append(repo_spec)
+            repo_list.append(GITHUB_URL + repo_spec)
         else:
             for repo_line in urllib.request.urlopen(repo_spec):
                 repo_line = repo_line.decode('utf-8').split('#')[0].strip()
