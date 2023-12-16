@@ -113,7 +113,7 @@ def get_tool_directories(repository: Repository, commit: Commit, status: Optiona
         return frozenset()
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> Tuple[List[str], FrozenSet[str]]:
+def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> FrozenSet[str]:
     """
     Get list of the tool categories for which tools have been added, updated, or removed.
     """
@@ -203,7 +203,7 @@ class process_new_commits:
             self.status = None
 
 
-def get_commit_author(commit: Commit) -> str:
+def get_commit_author(commit: Commit) -> Optional[str]:
     if commit.author is None:
         return None
     else:
@@ -221,7 +221,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
     tool_directories: FrozenSet[str] = None
 
     # Number of commits back in time, since shed files were last modified
-    shed_age = 0
+    shed_age: int = 0
 
     for commit, short_sha, datetime in (pnc := process_new_commits(repository, cached_df, until)):
 
@@ -236,7 +236,7 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
             # Example: 1 means that `c` is the first commit since the last modification
             shed_age += 1
 
-        author = get_commit_author(commit)
+        author: Optional[str] = get_commit_author(commit)
         if author is None:
 
             new_entries['author'].append('')
@@ -245,10 +245,10 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
         else:
 
             # Fetch the directory tree
-            tool_directories = get_tool_directories(repository, commit, pnc.status)
+            tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
 
-            # Get list of updated tool categories, and update the currently known tool directories
-            updated_tool_categories = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+            # Get list of updated tool categories
+            updated_tool_categories: FrozenSet[str] = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
