@@ -1,6 +1,9 @@
 repositories:
-- https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories01.list
-- https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories02.list
-- https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories03.list
-- https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories04.list
-- galaxyproject/training-material
+
+- url-list: https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories01.list
+- url-list: https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories02.list
+- url-list: https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories03.list
+- url-list: https://raw.githubusercontent.com/galaxyproject/planemo-monitor/master/repositories04.list
+
+- owner-name: galaxyproject/training-material
+  scan-tools: false

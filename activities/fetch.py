@@ -45,6 +45,27 @@ def get_string_content(cf: ContentFile) -> str:
     return base64.b64decode(cf.content).decode('utf-8')
 
 
+class RepositoryInfo:
+
+    def __init__(self, url: str, scan_tools: bool):
+        self.url = url
+        self.scan_tools = scan_tools
+
+    def get_repository(self, g: Github):
+        assert self.url.lower().startswith(GITHUB_URL.lower()), f'Invalid URL: {repository_url}'
+        url = self.url[len(GITHUB_URL):]
+        url_match = re.match(GITHUB_REPOSITORY_PATTERN, url)
+        assert url_match is not None, f'Invalid URL pattern: {repository_url}'
+        owner, name = url_match.group(1), url_match.group(2)
+        try:
+            return g.get_repo(f'{owner}/{name}')
+        except UnknownObjectException:
+            if name.endswith('.git'):
+                return g.get_repo(f'{owner}/{name[:-4]}')
+            else:
+                raise
+
+
 def get_github_repositories(g: Github) -> List[str]:
     """
     Get list of tool GitHub repositories to parse
@@ -55,30 +76,17 @@ def get_github_repositories(g: Github) -> List[str]:
         data = yaml.safe_load(fp)
     repo_list: List[str] = list()
     for repo_spec in data['repositories']:
-        if re.match(GITHUB_REPOSITORY_PATTERN, repo_spec):
-            repo_list.append(GITHUB_URL + repo_spec)
-        else:
-            for repo_line in urllib.request.urlopen(repo_spec):
+        kwargs = dict(scan_tools = repo_spec.get('scan-tools', True))
+        if 'url-list' in repo_spec:
+            for repo_line in urllib.request.urlopen(repo_spec['url-list']):
                 repo_line = repo_line.decode('utf-8').split('#')[0].strip()
                 if len(repo_line) > 0:
-                    repo_list.append(repo_line)
+                    repo_list.append(RepositoryInfo(repo_line, **kwargs))
+        elif 'url' in repo_spec:
+                repo_list.append(RepositoryInfo(repo_spec['url'], **kwargs))
+        elif 'owner-name' in repo_spec:
+                repo_list.append(RepositoryInfo(GITHUB_URL + repo_spec['owner-name'], **kwargs))
     return repo_list
-
-
-def get_github_repository(g: Github, repository_url: str) -> Repository:
-    assert repository_url.lower().startswith(GITHUB_URL.lower()), f'Invalid URL: {repository_url}'
-    repository_url = repository_url[len(GITHUB_URL):]
-    repository_url_match = re.match(GITHUB_REPOSITORY_PATTERN, repository_url)
-    assert repository_url_match is not None, f'Invalid URL pattern: {repository_url}'
-    owner = repository_url_match.group(1)
-    name = repository_url_match.group(2)
-    try:
-        return g.get_repo(f'{owner}/{name}')
-    except UnknownObjectException:
-        if name.endswith('.git'):
-            return g.get_repo(f'{owner}/{name[:-4]}')
-        else:
-            raise
 
 
 def get_cache_filepath(repository: Repository) -> str:
@@ -213,7 +221,8 @@ def get_commit_author(commit: Commit) -> Optional[str]:
             return None
 
 
-def get_commit_history(repository: Repository, until: Optional[datetime]=None) -> pd.DataFrame:
+def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetime]=None) -> pd.DataFrame:
+    repository = rinfo.get_repository(g)
     cached_df = get_cached_commit_history(repository)
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
 
@@ -244,11 +253,12 @@ def get_commit_history(repository: Repository, until: Optional[datetime]=None) -
 
         else:
 
-            # Fetch the directory tree
-            tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
-
-            # Get list of updated tool categories
-            updated_tool_categories: FrozenSet[str] = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+            # If enabled, fetch the directory tree and get list of updated tool categories
+            if rinfo.scan_tools:
+                tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
+                updated_tool_categories: FrozenSet[str] = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+            else:
+                updated_tool_categories: FrozenSet[str] = frozenset()
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
