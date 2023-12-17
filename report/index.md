@@ -8,7 +8,11 @@ layout: default
 **Communities:**
 
 <ul class="mb-5">
-<li>List of communities.</li>
+{% for community in site.data.communities.communities %}
+<li>{{ community[1].name }}</li>
+{% else %}
+<li>No communities.</li>
+{% endfor %}
 </ul>
 
 ---
