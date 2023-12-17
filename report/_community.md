@@ -9,16 +9,50 @@ breadcrumb:
 
 {% raw %}
 
-{% assign community_data = site.data.communities_data[page.community_id] %}
+{% assign commits = site.data.communities_data[page.community_id] %}
 
-**Commits:** {{ community_data.size }}
+**Commits all-time:** {{ commits.size }}
 
 **Most frequent contributors:**
-{% assign groups = community_data | group_by: "author" | sort: "size" | reverse %}
+{% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
 <ol>
-  {% for g in groups limit: 5 %}
+{% for g in groups limit: 5 %}
   <li>{{ g.name }} {{ g.items.size }}</li>
-  {% endfor %}
+{% endfor %}
+</ol>
+
+{% assign since_year = site.time | date: '%Y' | minus:1 %}
+{% assign since_month_day = site.time | date: '%m-%d' %}
+{% assign since_date = since_year | append: "-" | append: since_month_day %}
+{% assign commits_last_year = commits | where_exp: "commit", "commit.timestamp >= since_date" %}
+**Commits last year:**
+{{ commits_last_year.size }}
+
+**Most frequent contributors:**
+{% assign groups = commits_last_year | group_by: "author" | sort: "size" | reverse %}
+<ol>
+{% for g in groups limit: 5 %}
+  <li>{{ g.name }} {{ g.items.size }}</li>
+{% endfor %}
+</ol>
+
+**New contributors:**
+{% assign groups = commits | group_by: "author" %}
+<ol>
+{% for g in groups %}
+  {% assign commits_before_last_year = g.items | where_exp: "commit", "commit.timestamp < since_date" %}
+  {% if commits_before_last_year.size == 0 %}
+  <li>
+    {{ g.name }}
+    <ul>
+    {% assign repositories = g.items | map: "repository" | uniq %}
+    {% for repo in repositories %}
+      <li>{{ repo }}</li>
+    {% endfor %}
+    </ul>
+  </li>
+  {% endif %}
+{% endfor %}
 </ol>
 
 {% endraw %}
