@@ -1,0 +1,8 @@
+name: galaxy-community-activities
+channels:
+  - conda-forge
+dependencies:
+  - c-compiler
+  - compilers
+  - cxx-compiler
+  - ruby
