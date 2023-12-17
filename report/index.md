@@ -9,7 +9,7 @@ layout: default
 
 <ul class="mb-5">
 {% for community in site.data.communities.communities %}
-<li>{{ community[1].name }}</li>
+<li><a href="communities/{{ community.id }}.html">{{ community.name }}</a></li>
 {% else %}
 <li>No communities.</li>
 {% endfor %}

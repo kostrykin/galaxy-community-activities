@@ -13,3 +13,4 @@ dependencies:
     - PyGithub
     - pyyaml
     - tqdm
+    - python-liquid

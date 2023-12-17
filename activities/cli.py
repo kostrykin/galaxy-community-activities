@@ -5,7 +5,10 @@ from typing import (
     List,
 )
 
-from . import fetch
+from . import (
+    fetch,
+    report,
+)
 
 assert sys.version_info >= (3, 10)
 
@@ -52,4 +55,5 @@ if __name__ == '__main__':
 
     if args.report:
 
-        os.system('cd report && jekyll build')
+        report.update()
+        report.build()

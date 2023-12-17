@@ -1,1 +1,4 @@
 name: Galaxy Community Activities
+
+include:
+  - communities
