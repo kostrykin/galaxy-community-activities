@@ -1,5 +1,6 @@
 _site
 communities
+_data/communities_data
 .sass-cache
 .jekyll-cache
 .jekyll-metadata

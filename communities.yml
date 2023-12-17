@@ -12,6 +12,5 @@ communities:
 
   - id: microgalaxy
     name: Microbial Data Analysis
-    categories: galaxyproject/galaxy_tool_metadata_extractor/data/microgalaxy/categories
-    exclude: galaxyproject/galaxy_tool_metadata_extractor/data/microgalaxy/tools_to_exclude
-    keep: galaxyproject/galaxy_tool_metadata_extractor/data/microgalaxy/tools_to_keep
+    categories:
+    - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/microgalaxy/categories
