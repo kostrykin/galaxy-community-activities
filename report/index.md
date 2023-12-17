@@ -17,5 +17,5 @@ layout: default
 
 <p class="text-muted"><small>
 <b>Is your community missing?</b>
-Add it on <a href="https://github.com/kostrykin/galaxy-community-activities"><i class="bi bi-github"></i> GitHub</a>.
+Add it on <a href="https://github.com/kostrykin/galaxy-community-activities"><i class="bi bi-github" style="vertical-align: top;"></i> GitHub</a>.
 </small></p>

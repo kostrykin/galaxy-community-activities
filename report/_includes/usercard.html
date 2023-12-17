@@ -1,15 +1,14 @@
-<div class="card" style="height: 12rem;">
-  <div class="card-body">
+{% assign repositories = include.commits | map: "repository" | uniq %}
+
+<div class="usercard">
+  <img src="https://avatars.githubusercontent.com/u/19364610?v=4" class="avatar img-circle">
+  <div class="usercard-body">
     <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
-    {% if include.commits %}
-    <p class="text-muted"><b>Commits:</b> {{ include.commits }}</p>
-    {% endif %}
-    {% if include.repositories %}
+    <p class="text-muted"><b>Commits:</b> {{ include.commits.size }}</p>
     <p class="text-muted"><b>Contributed to:</b>
-    {% for repo in include.repositories %}
+    {% for repo in repositories %}
       <a href="https://github.com/{{ repo }}">{{ repo }}</a>
     {% endfor %}
     </p>
-    {% endif %}
   </div>
 </div>

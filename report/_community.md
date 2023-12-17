@@ -11,41 +11,35 @@ breadcrumb:
 
 {% assign commits = site.data.communities_data[page.community_id] %}
 
-**Commits all-time:** {{ commits.size }}
+<h2><small>Commits all-time: <b>{{ commits.size }}</b></small></h2>
 
-**Most frequent contributors:**
+<h3><small><b>Most frequent contributors:</b></small></h3>
 {% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
-<ol>
 {% for g in groups limit: 5 %}
-  <li>{% include usercard.html name = g.name commits = g.items.size %}</li>
+  {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
-</ol>
+
+---
 
 {% assign since_year = site.time | date: '%Y' | minus:1 %}
 {% assign since_month_day = site.time | date: '%m-%d' %}
 {% assign since_date = since_year | append: "-" | append: since_month_day %}
 {% assign commits_last_year = commits | where_exp: "commit", "commit.timestamp >= since_date" %}
-**Commits last year:**
-{{ commits_last_year.size }}
+<h2><small>Commits last year: <b>{{ commits_last_year.size }}</b></small></h2>
 
-**Most frequent contributors:**
+<h3><small><b>Most frequent contributors:</b></small></h3>
 {% assign groups = commits_last_year | group_by: "author" | sort: "size" | reverse %}
-<ol>
 {% for g in groups limit: 5 %}
-  <li>{% include usercard.html name = g.name commits = g.items.size %}</li>
+  {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
-</ol>
 
-**New contributors:**
+<h3><small><b>New contributors:</b></small></h3>
 {% assign groups = commits | group_by: "author" %}
-<ol>
 {% for g in groups %}
   {% assign commits_before_last_year = g.items | where_exp: "commit", "commit.timestamp < since_date" %}
   {% if commits_before_last_year.size == 0 %}
-    {% assign repositories = g.items | map: "repository" | uniq %}
-    <li>{% include usercard.html name = g.name repositories = repositories %}</li>
+    {% include usercard.html name = g.name commits = g.items %}
   {% endif %}
 {% endfor %}
-</ol>
 
 {% endraw %}
