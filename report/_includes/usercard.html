@@ -1,13 +1,15 @@
-<a href="https://github.com/{{ include.name }}">{{ include.name }}</a>
-
-{% if include.commits %}
-<b>Commits:</b> {{ include.commits }}
-{% endif %}
-
-{% if include.repositories %}
-<ul>
-{% for repo in include.repositories %}
-  <li>{{ repo }}</li>
-{% endfor %}
-</ul>
-{%endif%}
+<div class="card" style="height: 12rem;">
+  <div class="card-body">
+    <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
+    {% if include.commits %}
+    <p class="text-muted"><b>Commits:</b> {{ include.commits }}</p>
+    {% endif %}
+    {% if include.repositories %}
+    <p class="text-muted"><b>Contributed to:</b>
+    {% for repo in include.repositories %}
+      <a href="https://github.com/{{ repo }}">{{ repo }}</a>
+    {% endfor %}
+    </p>
+    {% endif %}
+  </div>
+</div>
