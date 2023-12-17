@@ -1,4 +1,0 @@
-pandas
-PyGithub
-pyyaml
-tqdm
