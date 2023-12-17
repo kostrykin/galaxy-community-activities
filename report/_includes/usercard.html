@@ -1,0 +1,13 @@
+<a href="https://github.com/{{ include.name }}">{{ include.name }}</a>
+
+{% if include.commits %}
+<b>Commits:</b> {{ include.commits }}
+{% endif %}
+
+{% if include.repositories %}
+<ul>
+{% for repo in include.repositories %}
+  <li>{{ repo }}</li>
+{% endfor %}
+</ul>
+{%endif%}

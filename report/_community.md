@@ -17,7 +17,7 @@ breadcrumb:
 {% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
 <ol>
 {% for g in groups limit: 5 %}
-  <li>{{ g.name }} {{ g.items.size }}</li>
+  <li>{% include usercard.html name = g.name commits = g.items.size %}</li>
 {% endfor %}
 </ol>
 
@@ -32,7 +32,7 @@ breadcrumb:
 {% assign groups = commits_last_year | group_by: "author" | sort: "size" | reverse %}
 <ol>
 {% for g in groups limit: 5 %}
-  <li>{{ g.name }} {{ g.items.size }}</li>
+  <li>{% include usercard.html name = g.name commits = g.items.size %}</li>
 {% endfor %}
 </ol>
 
@@ -42,15 +42,8 @@ breadcrumb:
 {% for g in groups %}
   {% assign commits_before_last_year = g.items | where_exp: "commit", "commit.timestamp < since_date" %}
   {% if commits_before_last_year.size == 0 %}
-  <li>
-    {{ g.name }}
-    <ul>
     {% assign repositories = g.items | map: "repository" | uniq %}
-    {% for repo in repositories %}
-      <li>{{ repo }}</li>
-    {% endfor %}
-    </ul>
-  </li>
+    <li>{% include usercard.html name = g.name repositories = repositories %}</li>
   {% endif %}
 {% endfor %}
 </ol>

@@ -47,7 +47,7 @@ def get_community_dataframe(community):
                 if not any([c.lower() in row_categories for c in categories]):
                     drop_idx_list.append(row_idx)
             df.drop(drop_idx_list, inplace=True)
-            df['repository'] = repo
+        df['repository'] = repo
         df_list.append(df)
     return pd.concat(df_list)
 
