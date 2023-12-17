@@ -3,16 +3,14 @@ title: Galaxy Community Activities
 layout: default
 ---
 
-<h1 class="mb-5">{{ page.title }}</h1>
-
 **Communities:**
 
 <ul class="mb-5">
-{% for community in site.data.communities.communities %}
-<li><a href="communities/{{ community.id }}.html">{{ community.name }}</a></li>
-{% else %}
-<li>No communities.</li>
-{% endfor %}
+  {% for community in site.data.communities.communities %}
+  <li><a href="communities/{{ community.id }}.html">{{ community.name }}</a></li>
+  {% else %}
+  <li>No communities.</li>
+  {% endfor %}
 </ul>
 
 ---
