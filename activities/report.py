@@ -1,6 +1,7 @@
+import cache
+
 import os
 import re
-import glob
 import csv
 import urllib.request
 
@@ -15,10 +16,7 @@ def get_community_dataframe(community):
     if 'repositories' in community:
         repositories = community['repositories']
     else:
-        repositories = list()
-        for cache_filepath in glob.glob('cache/repositories/*/*.csv'):
-            match = re.match(r'^cache/repositories/(.*).csv$', cache_filepath)
-            repositories.append(match.group(1))
+        repositories = cache.get_cached_repositories()
 
     # Get list of tool categories relevant to the community (if any)
     if 'categories' in community:
@@ -38,7 +36,7 @@ def get_community_dataframe(community):
     # Read the repositories and keep only the rows with matching categories
     df_list = list()
     for repo in repositories:
-        df = pd.read_csv(f'cache/repositories/{repo}.csv')
+        df = pd.read_csv(cache.get_cached_repository_filepath(repo))
         df.categories = df.categories.fillna('')
         if categories is not None:
             drop_idx_list = list()

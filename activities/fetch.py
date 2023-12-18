@@ -1,10 +1,11 @@
+import cache
+
 import base64
 import re
 import pathlib
 import csv
 import urllib.request
 import collections
-import glob
 from datetime import datetime
 from typing import (
     Union,
@@ -88,25 +89,6 @@ def get_github_repositories(g: Github) -> List[str]:
         elif 'owner-name' in repo_spec:
                 repo_list.append(RepositoryInfo(GITHUB_URL + repo_spec['owner-name'], **kwargs))
     return repo_list
-
-
-def get_cache_filepath(repository: Repository) -> str:
-    return f'cache/repositories/{repository.owner.login}/{repository.name}.csv'
-
-
-def get_cached_commit_history(repository: Repository) -> pd.DataFrame:
-    cache_filename = get_cache_filepath(repository)
-    if pathlib.Path(cache_filename).is_file():
-        return pd.read_csv(cache_filename)
-    else:
-        return pd.DataFrame(columns=['author', 'timestamp', 'categories', 'sha'])
-
-
-def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
-    cache_filename = get_cache_filepath(repository)
-    cache_directory = pathlib.Path(cache_filename).parents[0]
-    cache_directory.mkdir(parents=True, exist_ok=True)
-    history.to_csv(get_cache_filepath(repository), index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def is_subpath(subpath: Union[pathlib.Path, str], path: pathlib.Path) -> bool:
@@ -224,7 +206,7 @@ def get_commit_author(commit: Commit) -> Optional[str]:
 
 def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetime]=None) -> pd.DataFrame:
     repository = rinfo.get_repository(g)
-    cached_df = get_cached_commit_history(repository)
+    cached_df = cache.get_cached_commit_history(repository)
     new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
 
     # Currently known tool directories, initially unknown
@@ -271,14 +253,12 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
     new_entries_df = pd.DataFrame(new_entries).iloc[::-1].drop_duplicates(pk)
     history_df = pd.concat([cached_df, new_entries_df]) if len(cached_df) > 0 else new_entries_df
     history_df.sort_values(pk, inplace=True)
-    set_cached_commit_history(repository, history_df)
+    cache.set_cached_commit_history(repository, history_df)
     return history_df
 
 
 def get_user_data(g: GitHub) -> pd.DataFrame:
-    for cache_filepath in glob.glob('cache/repositories/*/*.csv'):
-        match = re.match(r'^cache/repositories/(.*).csv$', cache_filepath) # TODO: this is also done in report.py, use shared function
-        repositories.append(match.group(1))
+    repositories = cache.get_cached_repositories()
     authors: Set[str] = set()
     for repo in repositories:
         df = pd.read_csv(f'cache/repositories/{repo}.csv')
