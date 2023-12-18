@@ -6,7 +6,12 @@ import pathlib
 import csv
 import urllib.request
 import collections
-from datetime import datetime
+import random
+from datetime import (
+    datetime,
+    timedelta,
+    timezone,
+)
 from typing import (
     Union,
     List,
@@ -262,7 +267,30 @@ def get_user_data(g: Github) -> pd.DataFrame:
     authors: Set[str] = set()
     for repo in repositories:
         df = pd.read_csv(f'cache/repositories/{repo}.csv')
-        authors |= frozenset(df['author'].values.tolist())
-    # TODO: fetch the user data for the authors
-    # TODO: write the user data to /cache/authors.csv
-    pass
+        df['author'] = df['author'].fillna('')
+        authors |= frozenset([username.lower() for username in df['author'].values.tolist() if len(username) > 0])
+
+    authors_df = cache.get_cached_authors()
+    authors_data = {item[0]: item[1].tolist() for item in authors_df.to_dict('series').items()}
+
+    now = datetime.now(timezone.utc)
+    for username in tqdm(authors, desc='Fetching authors data'):
+        sel = (authors_df['username'] == username)
+        if sel.any():
+            author_row = authors_df[sel]
+            if len(author_row['avatar_url'].tolist()[0]) == 0: continue
+            timestamp = pd.to_datetime(author_row['timestamp'].tolist()[0], utc=True)
+            if timestamp > now: continue
+
+        try:
+            user = g.get_user(username)
+            authors_data['avatar_url'].append(user.avatar_url)
+        except UnknownObjectException:
+            authors_data['avatar_url'].append('')
+
+        authors_data['username'].append(username)
+        authors_data['timestamp'].append(now + timedelta(days=7 + random.randint(0, 23)))
+
+    authors_df = pd.DataFrame(authors_data)
+    authors_df.sort_values('username', inplace=True)
+    cache.set_cached_authors(authors_df)

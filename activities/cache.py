@@ -16,6 +16,10 @@ def get_cached_repository_filepath(repository: Union[str, Repository]) -> str:
     return f'cache/repositories/{repo}.csv'
 
 
+def get_cached_authors_filepath() -> str:
+    return f'cache/authors.csv'
+
+
 def get_cached_commit_history(repository: Repository) -> pd.DataFrame:
     cache_filename = get_cached_repository_filepath(repository)
     if pathlib.Path(cache_filename).is_file():
@@ -28,7 +32,24 @@ def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
     cache_filename = get_cached_repository_filepath(repository)
     cache_directory = pathlib.Path(cache_filename).parents[0]
     cache_directory.mkdir(parents=True, exist_ok=True)
-    history.to_csv(get_cached_repository_filepath(repository), index=False, quoting=csv.QUOTE_NONNUMERIC)
+    history.to_csv(cache_filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+
+def get_cached_authors() -> pd.DataFrame:
+    cache_filename = get_cached_authors_filepath()
+    if pathlib.Path(cache_filename).is_file():
+        df = pd.read_csv(cache_filename)
+        df['avatar_url'] = df['avatar_url'].fillna('')
+        return df
+    else:
+        return pd.DataFrame(columns=['username', 'avatar_url', 'timestamp'])
+
+
+def set_cached_authors(authors: pd.DataFrame):
+    cache_filename = get_cached_authors_filepath()
+    cache_directory = pathlib.Path(cache_filename).parents[0]
+    cache_directory.mkdir(parents=True, exist_ok=True)
+    authors.to_csv(cache_filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def get_cached_repositories() -> List[str]:
