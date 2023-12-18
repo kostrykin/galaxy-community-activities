@@ -1,5 +1,13 @@
 ---
 title: {{ community.name }}
+subtitle: {{ community.short_name }}
+intro: |
+  {% if community.url %}
+    <p>
+      <i class="bi bi-box-arrow-up-right"></i>
+      <a href="https://{{ community.url }}">{{ community.url }}</a>
+    </p>
+  {% endif%}
 layout: default
 community_id: {{ community.id }}
 breadcrumb:

@@ -7,10 +7,12 @@ communities:
 
   - id: image
     name: Image Analysis
+    url: imaging.usegalaxy.eu
     categories:
     - Imaging
 
   - id: microgalaxy
     name: Microbial Data Analysis
+    short_name: microgalaxy
     categories:
     - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/microgalaxy/categories
