@@ -42,7 +42,7 @@ breadcrumb:
 {% endfor %}
 
 <h3><small><b>New contributors:</b></small></h3>
-{% assign groups = commits | group_by: "author" %}
+{% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
 {% for g in groups %}
   {% assign commits_before_last_year = g.items | where_exp: "commit", "commit.timestamp < since_date" %}
   {% if commits_before_last_year.size == 0 %}
