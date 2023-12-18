@@ -1,9 +1,14 @@
 communities:
 
   - id: core
-    name: Galaxy Core Developement
+    name: Core Developement
     repositories:
     - galaxyproject/galaxy
+
+  - id: gtn
+    name: Training Platform
+    repositories:
+    - galaxyproject/training-material
 
   - id: image
     name: Image Analysis

@@ -5,8 +5,9 @@ layout: default
 
 **Communities:**
 
+{% assign communities = site.data.communities.communities | sort: "name" %}
 <ul class="mb-5">
-  {% for community in site.data.communities.communities %}
+  {% for community in communities %}
   <li><a href="communities/{{ community.id }}.html">{{ community.name }}</a></li>
   {% else %}
   <li>No communities.</li>

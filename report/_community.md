@@ -11,7 +11,7 @@ intro: |
 layout: default
 community_id: {{ community.id }}
 breadcrumb:
-  - '<a href="../index.html">Home</a>'
+  - '<a href="../index.html">Galaxy Community Activities</a>'
   - '{{ community.name }}'
 ---
 
