@@ -1,4 +1,4 @@
-{% assign repositories = include.commits | map: "repository" | uniq %}
+{% assign repositories = include.commits | group_by: "repository" | sort: "size" | reverse %}
 {% assign username = include.name | downcase %}
 {% assign userdata_list = site.data.authors | where_exp: "author", "author.username == username" %}
 {% assign userdata = userdata_list[0] %}
@@ -11,9 +11,19 @@
     <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
     <p class="text-muted"><b>Commits:</b> {{ include.commits.size }}</p>
     <p class="text-muted"><b>Contributed to:</b>
-    {% for repo in repositories %}
-      <a href="https://github.com/{{ repo }}">{{ repo }}</a>
-    {% endfor %}
+    <a href="https://github.com/{{ repositories[0].name }}">{{ repositories[0].name }}</a>
+    {% if repositories.size > 1 %}
+      and <button class="btn btn-link" data-toggle="popover" data-content="
+        <ol>{% for repo in repositories %}
+          <li style='white-space: nowrap;'>
+            <a href='https://github.com/{{ repo.name }}'>{{ repo.name }}</a>
+            ({{ repo.items.size }})
+          </li>
+        {% endfor %}</ol>
+      " data-html="true">
+        {{ repositories.size | minus: "1" }} other{% if repositories.size > 2 %}s{% endif %}
+      </button>
+    {% endif %}
     </p>
   </div>
 </div>

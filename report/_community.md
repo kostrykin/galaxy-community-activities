@@ -23,7 +23,7 @@ breadcrumb:
 
 <h3><small><b>Most frequent contributors:</b></small></h3>
 {% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
-{% for g in groups limit: 5 %}
+{% for g in groups limit: 6 %}
   {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
 
@@ -37,7 +37,7 @@ breadcrumb:
 
 <h3><small><b>Most frequent contributors:</b></small></h3>
 {% assign groups = commits_last_year | group_by: "author" | sort: "size" | reverse %}
-{% for g in groups limit: 5 %}
+{% for g in groups limit: 6 %}
   {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
 
