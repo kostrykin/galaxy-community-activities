@@ -1,7 +1,12 @@
 {% assign repositories = include.commits | map: "repository" | uniq %}
+{% assign username = include.name | downcase %}
+{% assign userdata_list = site.data.authors | where_exp: "author", "author.username == username" %}
+{% assign userdata = userdata_list[0] %}
 
 <div class="usercard">
-  <img src="https://avatars.githubusercontent.com/u/19364610?v=4" class="avatar img-circle">
+  {% if userdata.avatar_url %}
+  <img src="{{ userdata.avatar_url }}" class="avatar img-circle">
+  {% endif %}
   <div class="usercard-body">
     <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
     <p class="text-muted"><b>Commits:</b> {{ include.commits.size }}</p>
