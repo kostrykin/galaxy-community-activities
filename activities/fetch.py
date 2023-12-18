@@ -1,4 +1,4 @@
-import cache
+from . import cache
 
 import base64
 import re
@@ -257,7 +257,7 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
     return history_df
 
 
-def get_user_data(g: GitHub) -> pd.DataFrame:
+def get_user_data(g: Github) -> pd.DataFrame:
     repositories = cache.get_cached_repositories()
     authors: Set[str] = set()
     for repo in repositories:

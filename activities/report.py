@@ -1,7 +1,6 @@
-import cache
+from . import cache
 
 import os
-import re
 import csv
 import urllib.request
 

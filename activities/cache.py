@@ -1,6 +1,7 @@
 import pathlib
 import csv
 import glob
+import re
 
 import pandas as pd
 from github.Repository import Repository
