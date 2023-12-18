@@ -90,7 +90,7 @@ def get_github_repositories(g: Github) -> List[str]:
 
 
 def get_cache_filepath(repository: Repository) -> str:
-    return f'cache/{repository.owner.login}/{repository.name}.csv'
+    return f'cache/repositories/{repository.owner.login}/{repository.name}.csv'
 
 
 def get_cached_commit_history(repository: Repository) -> pd.DataFrame:

@@ -16,8 +16,8 @@ def get_community_dataframe(community):
         repositories = community['repositories']
     else:
         repositories = list()
-        for cache_filepath in glob.glob('cache/*/*.csv'):
-            match = re.match(r'^cache/(.*).csv$', cache_filepath)
+        for cache_filepath in glob.glob('cache/repositories/*/*.csv'):
+            match = re.match(r'^cache/repositories/(.*).csv$', cache_filepath)
             repositories.append(match.group(1))
 
     # Get list of tool categories relevant to the community (if any)
@@ -38,7 +38,7 @@ def get_community_dataframe(community):
     # Read the repositories and keep only the rows with matching categories
     df_list = list()
     for repo in repositories:
-        df = pd.read_csv(f'cache/{repo}.csv')
+        df = pd.read_csv(f'cache/repositories/{repo}.csv')
         df.categories = df.categories.fillna('')
         if categories is not None:
             drop_idx_list = list()
