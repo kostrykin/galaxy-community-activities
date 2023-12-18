@@ -4,6 +4,7 @@ import pathlib
 import csv
 import urllib.request
 import collections
+import glob
 from datetime import datetime
 from typing import (
     Union,
@@ -272,3 +273,16 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
     history_df.sort_values(pk, inplace=True)
     set_cached_commit_history(repository, history_df)
     return history_df
+
+
+def get_user_data(g: GitHub) -> pd.DataFrame:
+    for cache_filepath in glob.glob('cache/repositories/*/*.csv'):
+        match = re.match(r'^cache/repositories/(.*).csv$', cache_filepath) # TODO: this is also done in report.py, use shared function
+        repositories.append(match.group(1))
+    authors: Set[str] = set()
+    for repo in repositories:
+        df = pd.read_csv(f'cache/repositories/{repo}.csv')
+        authors |= frozenset(df['author'].values.tolist())
+    # TODO: fetch the user data for the authors
+    # TODO: write the user data to /cache/authors.csv
+    pass

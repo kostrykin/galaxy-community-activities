@@ -46,12 +46,16 @@ if __name__ == '__main__':
         if args.repo is not None:
             repositories = [rinfo for rinfo in repositories if rinfo.url == f'{fetch.GITHUB_URL}{args.repo}']
 
+        # Fetch repository data
         if args.list:
             print('\n'.join([f'- {rinfo.url}' for rinfo in repositories]))
         else:
             for ridx, rinfo in enumerate(repositories):
                 print(f'\n({ridx + 1}/{len(repositories)}) {rinfo.url} ↴')
                 fetch.get_commit_history(g, rinfo, until)
+
+        # Fetch user data
+        fetch.get_user_data(g)
 
     if args.report:
 
