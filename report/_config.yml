@@ -2,3 +2,9 @@ name: Galaxy Community Activities
 
 include:
   - communities
+
+defaults:
+  - scope:
+      path: "assets/images"
+    values:
+      image: true

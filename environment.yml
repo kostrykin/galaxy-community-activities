@@ -9,6 +9,11 @@ dependencies:
   - cxx-compiler
   - ruby
   - pip
+  - networkx
+  - matplotlib
+  - scikit-image
+  - numpy
+  - scipy
   - pip:
     - PyGithub
     - pyyaml

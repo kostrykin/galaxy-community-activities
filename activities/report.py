@@ -1,12 +1,18 @@
 from . import cache
+from . import communitygraph
 
 import os
 import csv
 import urllib.request
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 import pandas as pd
 import yaml
 from liquid import Template
+from tqdm import tqdm
 
 
 def get_community_dataframe(community):
@@ -59,14 +65,27 @@ def update_communities():
     with open('report/_community.md') as fp:
         template = Template(fp.read())
 
+    # Prepare directory for community graphs
+    communitygraphs_dir = 'report/assets/images/communitygraphs'
+    os.makedirs(communitygraphs_dir, exist_ok=True)
+
     # Render community pages
     os.makedirs('report/communities', exist_ok=True)
-    for community in communities:
+    for community in (pbar := tqdm(communities)):
+        cid = community['id']
+        pbar.set_description_str(cid)
         df = get_community_dataframe(community)
         communities_data_dir = 'report/_data/communities_data'
         os.makedirs(communities_data_dir, exist_ok=True)
-        df.to_csv(f'{communities_data_dir}/{community["id"]}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
-        with open(f'report/communities/{community["id"]}.md', 'w') as fp:
+        df.to_csv(f'{communities_data_dir}/{cid}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+        # Render community graph for the last year (if there is more than one repository)
+        if len(df.repository.drop_duplicates()) > 1:
+            since = datetime.now() - timedelta(days=365)
+            communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.svg', cid, since=since)
+
+        # Render the community template
+        with open(f'report/communities/{cid}.md', 'w') as fp:
             fp.write(template.render(community = community))
 
 

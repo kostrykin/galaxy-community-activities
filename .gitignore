@@ -162,3 +162,4 @@ cython_debug/
 /venv
 *.dump-*
 *.swp
+.DS_Store
