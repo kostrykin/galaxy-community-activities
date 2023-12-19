@@ -14,15 +14,15 @@
     <a href="https://github.com/{{ repositories[0].name }}">{{ repositories[0].name }}</a>
     {% if repositories.size > 1 %}
       and <button class="btn btn-link" data-toggle="popover" data-content="
-        <ol>{% for repo in repositories %}
+        <ul class='list-unstyled'>{% for repo in repositories %}
           <li style='white-space: nowrap;'>
             {% assign repo_id = repo.name | downcase %}
             {% assign avatars = site.data.avatars | where_exp: "repo", "repo.name == repo_id" %}
             {% assign avatar = avatars[0] %}
-            <a href='https://github.com/{{ repo.name }}'><img src='{{ avatar.avatar_url }}' class='img-inline'>{{ repo.name }}</a>
+            <a href='https://github.com/{{ repo.name }}'><img src='{{ avatar.avatar_url }}' class='img-inline img-repository-icon'>{{ repo.name }}</a>
             ({{ repo.items.size }})
           </li>
-        {% endfor %}</ol>
+        {% endfor %}</ul>
       " data-html="true">
         {{ repositories.size | minus: "1" }} other{% if repositories.size > 2 %}s{% endif %}
       </button>
