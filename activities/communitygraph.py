@@ -47,7 +47,46 @@ def image_to_rounded_square(img):
     return result.clip(0, 1)
 
 
-def render_community_graph(filepath: str, community_id: str, since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=3, seed: int=1):
+def remove_edges_from(G, n):
+    for u, v in G.edges:
+        if u == n or v == n:
+            G.remove_edge(u, v)
+
+
+def simplify_graph(G: nx.Graph, authors, repositories, max_edges=50, max_nodes=30):
+    while True:
+        
+        # Break when the graph is sufficiently simple
+        if len(G.edges) <= max_edges and len(G.nodes) <= max_nodes: break
+
+        # Choose the node with the highest degree
+        n, n_deg = max(G.degree, key=lambda n: n[1])
+        if n_deg == 2:
+            break ## Nothing left to simplify here
+
+        # Create proxy node
+        remove_edges_from(G, n)
+        if '/' in n:
+            proxy = f'{100 * n_deg / len(authors):.0f}% of\ncontributors'
+            proxy = f'{n_deg:d} contributors'
+            proxy_type = 'author'
+        else:
+            proxy = f'{100 * n_deg / len(repositories):.0f}% of\nrepositories'
+            proxy = f'{n_deg:d} repositories'
+            proxy_type = 'repository'
+        G.add_node(proxy, image=None, type=proxy_type)
+        G.add_edge(proxy, n)
+
+        # Remove disconnected nodes
+        disconnected_nodes = list()
+        for n in G.nodes:
+            if G.degree[n] == 0:
+                disconnected_nodes.append(n)
+        for n in disconnected_nodes:
+            G.remove_node(n)
+
+
+def render_community_graph(filepath: str, community_id: str, since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
     assert spread > 0, spread
 
     df_community = pd.read_csv(f'report/_data/communities_data/{community_id}.csv')
@@ -76,9 +115,9 @@ def render_community_graph(filepath: str, community_id: str, since: Optional[dat
 
     # Create graph nodes
     for repo in repositories:
-        G.add_node(repo, image=avatars[repo])
+        G.add_node(repo, image=avatars[repo], type='repository')
     for author in authors:
-        G.add_node(author, image=avatars[author])
+        G.add_node(author, image=avatars[author], type='author')
 
     # Create graph edges
     edges = df_community[['author', 'repository']].drop_duplicates()
@@ -86,8 +125,11 @@ def render_community_graph(filepath: str, community_id: str, since: Optional[dat
         if len(edge['author']) == 0 or len(edge['repository']) == 0: continue
         G.add_edge(edge['author'], edge['repository'])
 
+    # Simplify graph
+    simplify_graph(G, authors, repositories)
+
     # Get a reproducible layout and create figure
-    pos = nx.spring_layout(G, seed=seed, k=spread / math.sqrt(len(G.nodes)))
+    pos = nx.spring_layout(G, seed=seed, k=spread, iterations=100)
     fig = plt.figure(figsize=(18, 18))
     ax = fig.add_subplot()
 
@@ -99,8 +141,6 @@ def render_community_graph(filepath: str, community_id: str, since: Optional[dat
         arrows=True,
         arrowstyle="-",
         arrowsize=50,
-        min_source_margin=15,
-        min_target_margin=15,
         edge_color='#fff',
         width=5,
     )
@@ -110,13 +150,13 @@ def render_community_graph(filepath: str, community_id: str, since: Optional[dat
         return {node: p + (0, -0.09) for node, p in pos.items()}
 
     # Render labels
-    for mode in ('repos', 'authors'):
+    for mode in ('repository', 'author'):
         nx.draw_networkx_labels(
             G,
             pos=get_label_positions(pos),
             font_size=14,
-            font_weight='bold' if mode == 'repos' else 'normal',
-            labels={n: n.replace('/', '/\n') for n in G.nodes if ('/' in n) == (mode == 'repos')}
+            font_weight='bold' if mode == 'repository' else 'normal',
+            labels={n: n.replace('/', '/\n') for n in G.nodes if G.nodes[n]['type'] == mode}
         )
 
     # Update figure
