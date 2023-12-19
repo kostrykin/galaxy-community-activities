@@ -19,6 +19,7 @@ from typing import (
     Set,
     Tuple,
     Optional,
+    Callable,
 )
 
 import pandas as pd
@@ -262,35 +263,41 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
     return history_df
 
 
-def get_user_data(g: Github) -> pd.DataFrame:
+def get_avatars(g: Github, column: str, cache_df: pd.DataFrame, get_avatar_url: Callable[[str], str], cache_column: Optional[str]=None) -> pd.DataFrame:
+    if cache_column is None: cache_column = column
+
     repositories = cache.get_cached_repositories()
-    authors: Set[str] = set()
+    values: Set[str] = set()
     for repo in repositories:
         df = pd.read_csv(f'cache/repositories/{repo}.csv')
-        df['author'] = df['author'].fillna('')
-        authors |= frozenset([username.lower() for username in df['author'].values.tolist() if len(username) > 0])
+        df[column] = df[column].fillna('')
+        values |= frozenset([value.lower() for value in df[column].values.tolist() if len(value) > 0])
 
-    authors_df = cache.get_cached_authors()
-    authors_data = {item[0]: item[1].tolist() for item in authors_df.to_dict('series').items()}
+    cache_data = {item[0]: item[1].tolist() for item in cache_df.to_dict('series').items()}
 
     now = datetime.now(timezone.utc)
-    for username in tqdm(authors, desc='Fetching authors data'):
-        sel = (authors_df['username'] == username)
+    for value in tqdm(values, desc=f'Fetching "{column}" data'):
+        sel = (cache_df[cache_column] == value)
         if sel.any():
-            author_row = authors_df[sel]
-            if len(author_row['avatar_url'].tolist()[0]) == 0: continue
-            timestamp = pd.to_datetime(author_row['timestamp'].tolist()[0], utc=True)
+            cache_row = cache_df[sel]
+            if len(cache_row['avatar_url'].tolist()[0]) == 0: continue
+            timestamp = pd.to_datetime(cache_row['timestamp'].tolist()[0], utc=True)
             if timestamp > now: continue
 
         try:
-            user = g.get_user(username)
-            authors_data['avatar_url'].append(user.avatar_url)
+            avatar_url = get_avatar_url(value)
+            cache_data['avatar_url'].append(avatar_url)
         except UnknownObjectException:
-            authors_data['avatar_url'].append('')
+            cache_data['avatar_url'].append('')
 
-        authors_data['username'].append(username)
-        authors_data['timestamp'].append(now + timedelta(days=7 + random.randint(0, 23)))
+        cache_data[cache_column].append(value)
+        cache_data['timestamp'].append(now + timedelta(days=7 + random.randint(0, 23)))
 
-    authors_df = pd.DataFrame(authors_data)
-    authors_df.sort_values('username', inplace=True)
+    cache_df = pd.DataFrame(cache_data)
+    cache_df.sort_values(cache_column, inplace=True)
+    return cache_df
+
+
+def get_user_data(g: Github) -> pd.DataFrame:
+    authors_df = get_avatars(g, 'author', cache.get_cached_authors(), lambda author: g.get_user(author).avatar_url, 'username')
     cache.set_cached_authors(authors_df)
