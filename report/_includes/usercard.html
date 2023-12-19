@@ -1,11 +1,11 @@
 {% assign repositories = include.commits | group_by: "repository" | sort: "size" | reverse %}
 {% assign username = include.name | downcase %}
-{% assign userdata_list = site.data.authors | where_exp: "author", "author.username == username" %}
-{% assign userdata = userdata_list[0] %}
+{% assign avatars = site.data.avatars | where_exp: "author", "author.name == username" %}
+{% assign avatar = avatars[0] %}
 
 <div class="usercard">
-  {% if userdata.avatar_url %}
-  <img src="{{ userdata.avatar_url }}" class="avatar img-circle">
+  {% if avatar.avatar_url %}
+  <img src="{{ avatar.avatar_url }}" class="avatar img-circle">
   {% endif %}
   <div class="usercard-body">
     <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
@@ -16,7 +16,10 @@
       and <button class="btn btn-link" data-toggle="popover" data-content="
         <ol>{% for repo in repositories %}
           <li style='white-space: nowrap;'>
-            <a href='https://github.com/{{ repo.name }}'>{{ repo.name }}</a>
+            {% assign repo_id = repo.name | downcase %}
+            {% assign avatars = site.data.avatars | where_exp: "repo", "repo.name == repo_id" %}
+            {% assign avatar = avatars[0] %}
+            <a href='https://github.com/{{ repo.name }}'><img src='{{ avatar.avatar_url }}' class='img-inline'>{{ repo.name }}</a>
             ({{ repo.items.size }})
           </li>
         {% endfor %}</ol>

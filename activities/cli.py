@@ -54,8 +54,8 @@ if __name__ == '__main__':
                 print(f'\n({ridx + 1}/{len(repositories)}) {rinfo.url} ↴')
                 fetch.get_commit_history(g, rinfo, until)
 
-        # Fetch user data
-        fetch.get_user_data(g)
+        # Fetch avatars
+        fetch.get_all_avatars(g)
 
     if args.report:
 

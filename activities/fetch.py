@@ -270,13 +270,14 @@ def get_avatars(g: Github, column: str, cache_df: pd.DataFrame, get_avatar_url: 
     values: Set[str] = set()
     for repo in repositories:
         df = pd.read_csv(f'cache/repositories/{repo}.csv')
+        df['repository'] = repo
         df[column] = df[column].fillna('')
         values |= frozenset([value.lower() for value in df[column].values.tolist() if len(value) > 0])
 
     cache_data = {item[0]: item[1].tolist() for item in cache_df.to_dict('series').items()}
 
     now = datetime.now(timezone.utc)
-    for value in tqdm(values, desc=f'Fetching "{column}" data'):
+    for value in tqdm(values, desc=f'Fetching "{column}" avatars'):
         sel = (cache_df[cache_column] == value)
         if sel.any():
             cache_row = cache_df[sel]
@@ -298,6 +299,8 @@ def get_avatars(g: Github, column: str, cache_df: pd.DataFrame, get_avatar_url: 
     return cache_df
 
 
-def get_user_data(g: Github) -> pd.DataFrame:
-    authors_df = get_avatars(g, 'author', cache.get_cached_authors(), lambda author: g.get_user(author).avatar_url, 'username')
-    cache.set_cached_authors(authors_df)
+def get_all_avatars(g: Github) -> pd.DataFrame:
+    cache_df = cache.get_cached_avatars()
+    cache_df = get_avatars(g, 'author', cache_df, lambda author: g.get_user(author).avatar_url, 'name')
+    cache_df = get_avatars(g, 'repository', cache_df, lambda repository: g.get_repo(repository).owner.avatar_url, 'name')
+    cache.set_cached_avatars(cache_df)
