@@ -172,13 +172,15 @@ def render_community_graph(filepath: str, community_id: str, cache_dir: str='cac
     A.graph_attr.update(size='25,25')
     A.graph_attr.update(bgcolor='0 0 0.937')
     A.graph_attr.update(outputorder='edgesfirst')
+    A.graph_attr.update(overlap='prism')
+    A.graph_attr.update(overlap_scaling='-1')
     A.node_attr.update(fontname='Arial')
     A.node_attr.update(fontsize='28')
     A.node_attr.update(labelloc='b')
     A.node_attr.update(penwidth=0)
     A.edge_attr.update(penwidth=10)
     A.edge_attr.update(color='0 0 1')
-    A.layout(prog='neato', args='-Goverlap=false')
+    A.layout(prog='neato')
 
     # Draw the graph
     fmt = filepath.split('.')[-1].lower()
