@@ -82,7 +82,7 @@ def update_communities():
         # Render community graph for the last year (if there is more than one repository)
         if len(df.repository.drop_duplicates()) > 1:
             since = datetime.now() - timedelta(days=365)
-            communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.svg', cid, since=since)
+            communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.png', cid, since=since)
 
         # Render the community template
         with open(f'report/communities/{cid}.md', 'w') as fp:

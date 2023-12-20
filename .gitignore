@@ -163,3 +163,4 @@ cython_debug/
 *.dump-*
 *.swp
 .DS_Store
+/cache/avatars

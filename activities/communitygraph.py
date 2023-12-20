@@ -1,4 +1,6 @@
 import math
+import os, os.path
+import warnings
 from datetime import (
     datetime,
 )
@@ -11,20 +13,26 @@ import pandas as pd
 import networkx as nx
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import skimage, skimage.io
+import skimage, skimage.io, skimage.transform
 import scipy.ndimage as ndi
 from PIL import Image, ImageDraw
+
+
+node_label_prefix = '\n\n\n\n\n'
+node_kwargs = dict(shape='box')
 
 
 def load_image_url(url):
     img = skimage.io.imread(url, plugin='matplotlib')
     return skimage.img_as_float(img)
 
+
 def image_to_disk(img):
     mask = np.ones(img.shape[:2], bool)
     mask[mask.shape[0] // 2, mask.shape[1] // 2] = False
     mask = ndi.distance_transform_edt(mask) < min(mask.shape) // 2 - 2
     return np.concatenate([img[:, :, :3], mask[:, :, None]], axis=2)
+
 
 def image_to_rounded_square(img):
     assert img.shape[2] in (3, 4), img.shape
@@ -53,7 +61,7 @@ def remove_edges_from(G, n):
             G.remove_edge(u, v)
 
 
-def simplify_graph(G: nx.Graph, authors, repositories, max_edges=50, max_nodes=30):
+def simplify_graph(G: nx.Graph, authors, repositories, avatar_cache, max_edges=50, max_nodes=np.inf):
     while True:
         
         # Break when the graph is sufficiently simple
@@ -67,15 +75,13 @@ def simplify_graph(G: nx.Graph, authors, repositories, max_edges=50, max_nodes=3
         # Create proxy node
         remove_edges_from(G, n)
         if '/' in n:
-            proxy = f'{100 * n_deg / len(authors):.0f}% of\ncontributors'
-            proxy = f'{n_deg:d} contributors'
+            proxy = f'{node_label_prefix}{n_deg:d} contributors\n({100 * n_deg / len(authors):.0f}%)'
             proxy_type = 'author'
         else:
-            proxy = f'{100 * n_deg / len(repositories):.0f}% of\nrepositories'
-            proxy = f'{n_deg:d} repositories'
+            proxy = f'{node_label_prefix}{n_deg:d} repositories\n({100 * n_deg / len(repositories):.0f}%)'
             proxy_type = 'repository'
-        G.add_node(proxy, image=None, type=proxy_type)
-        G.add_edge(proxy, n)
+        G.add_node(proxy, type=proxy_type, image=avatar_cache.get_filename('.blank'), **node_kwargs)
+        G.add_edge(proxy, n, headclip='false', tailclip='false')
 
         # Remove disconnected nodes
         disconnected_nodes = list()
@@ -86,7 +92,44 @@ def simplify_graph(G: nx.Graph, authors, repositories, max_edges=50, max_nodes=3
             G.remove_node(n)
 
 
-def render_community_graph(filepath: str, community_id: str, since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
+class AvatarCache:
+
+    def __init__(self, cache_dir):
+        self.cache_dir = cache_dir
+
+    def get_filename(self, name):
+        return f'{self.cache_dir}/{name}.png'
+
+    def load(self, authors, repositories):
+        df_avatars = pd.read_csv('report/_data/avatars.csv')
+        df_avatars.set_index('name', inplace=True)
+        os.makedirs(self.cache_dir, exist_ok=True)
+    
+        # Check which avatars need to be created
+        is_cached = lambda name: os.path.isfile(self.get_filename(name))
+    
+        # Create avatar images
+        avatars = {'.blank': image_to_disk(np.ones((128, 128, 4), float))}
+        for username in authors:
+            if is_cached(username): continue
+            avatars[username] = image_to_disk(load_image_url(df_avatars.loc[username.lower()].avatar_url))
+        for reponame in repositories:
+            if is_cached(reponame): continue
+            avatars[reponame] = image_to_rounded_square(load_image_url(df_avatars.loc[reponame.lower()].avatar_url))
+    
+        # Write created images to cache
+        for name, avatar in avatars.items():
+            name_parts = name.split('/')
+            if len(name_parts) > 1:
+                owner = name_parts[0]
+                os.makedirs(f'{self.cache_dir}/{owner}', exist_ok=True)
+            avatar = skimage.transform.resize(avatar, (128, 128), anti_aliasing=True)
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                skimage.io.imsave(self.get_filename(name), skimage.img_as_ubyte(avatar))
+
+
+def render_community_graph(filepath: str, community_id: str, cache_dir: str='cache/avatars', since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
     assert spread > 0, spread
 
     df_community = pd.read_csv(f'report/_data/communities_data/{community_id}.csv')
@@ -102,92 +145,43 @@ def render_community_graph(filepath: str, community_id: str, since: Optional[dat
     repositories = np.unique([repository for repository in df_community['repository'].tolist() if len(repository) > 0])
 
     # Get required avatars
-    df_avatars = pd.read_csv('report/_data/avatars.csv')
-    df_avatars.set_index('name', inplace=True)
-    avatars = dict()
-    for username in authors:
-        avatars[username] = image_to_disk(load_image_url(df_avatars.loc[username.lower()].avatar_url))
-    for reponame in repositories:
-        avatars[reponame] = image_to_rounded_square(load_image_url(df_avatars.loc[reponame.lower()].avatar_url))
+    avatar_cache = AvatarCache(cache_dir)
+    avatar_cache.load(authors, repositories)
 
     # Create graph
     G = nx.Graph()
 
     # Create graph nodes
     for repo in repositories:
-        G.add_node(repo, image=avatars[repo], type='repository')
+        label_parts = repo.split('/')
+        label = f'{node_label_prefix}{label_parts[0]}/\n{label_parts[1]}'
+        G.add_node(repo, image=avatar_cache.get_filename(repo), type='repository', label=label, **node_kwargs)
     for author in authors:
-        G.add_node(author, image=avatars[author], type='author')
+        label = f'{node_label_prefix}{author}\n ' ## The tailing whitespace is mandatory
+        G.add_node(author, image=avatar_cache.get_filename(author), type='author', label=label, **node_kwargs)
 
     # Create graph edges
     edges = df_community[['author', 'repository']].drop_duplicates()
     for _, edge in edges.iterrows():
         if len(edge['author']) == 0 or len(edge['repository']) == 0: continue
-        G.add_edge(edge['author'], edge['repository'])
+        G.add_edge(edge['author'], edge['repository'], headclip='false', tailclip='false')
 
     # Simplify graph
-    simplify_graph(G, authors, repositories)
+    simplify_graph(G, authors, repositories, avatar_cache)
 
-    # Get a reproducible layout and create figure
-    pos = nx.spring_layout(G, seed=seed, k=spread, iterations=100)
-    fig = plt.figure(figsize=(18, 18))
-    ax = fig.add_subplot()
+    # Export graph to pygraphviz for drawing
+    A = nx.nx_agraph.to_agraph(G)
+    A.graph_attr.update(size='25,25')
+    A.graph_attr.update(bgcolor='0 0 0.937')
+    A.graph_attr.update(outputorder='edgesfirst')
+    A.node_attr.update(fontname='Arial')
+    A.node_attr.update(fontsize='28')
+    A.node_attr.update(labelloc='b')
+    A.node_attr.update(penwidth=0)
+    A.edge_attr.update(penwidth=10)
+    A.edge_attr.update(color='0 0 1')
+    A.layout(prog='neato', args='-Goverlap=false')
 
-    # Render the graph
-    nx.draw(
-        G,
-        pos=pos,
-        ax=ax,
-        arrows=True,
-        arrowstyle="-",
-        arrowsize=50,
-        edge_color='#fff',
-        width=5,
-    )
-
-    # Define offset of label positions (wrt node position)
-    def get_label_positions(pos):
-        return {node: p + (0, -0.09) for node, p in pos.items()}
-
-    # Render labels
-    for mode in ('repository', 'author'):
-        nx.draw_networkx_labels(
-            G,
-            pos=get_label_positions(pos),
-            font_size=14,
-            font_weight='bold' if mode == 'repository' else 'normal',
-            labels={n: n.replace('/', '/\n') for n in G.nodes if G.nodes[n]['type'] == mode}
-        )
-
-    # Update figure
-    fig.set_facecolor('0.937')
-    
-    # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-    tr_figure = ax.transData.transform
-
-    # Transform from display to figure coordinates
-    tr_axes = fig.transFigure.inverted().transform
-    
-    # Select the size of the image (relative to the X axis)
-    icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.025
-    icon_center = icon_size / 2
-    
-    # Add the respective image to each node
-    for n in G.nodes:
-        if G.nodes[n]['image'] is None: continue
-        xf, yf = tr_figure(pos[n])
-        xa, ya = tr_axes((xf, yf))
-
-        # Get overlapped axes and plot icon
-        icon_size_factor = 0.7 if '/' in n else 1
-        a = plt.axes([
-            xa - icon_center * icon_size_factor,
-            ya - icon_center * icon_size_factor,
-            icon_size * icon_size_factor,
-            icon_size * icon_size_factor])
-        a.imshow(G.nodes[n]['image'])
-        a.axis('off')
-
-    # Save the figure
-    fig.savefig(filepath, bbox_inches='tight')
-    plt.close(fig)
+    # Draw the graph
+    fmt = filepath.split('.')[-1].lower()
+    A.draw(path=filepath, format=fmt)

@@ -52,7 +52,7 @@ breadcrumb:
   {% endif %}
 {% endfor %}
 
-{% assign communitygraph_path = "/assets/images/communitygraphs/" | append: page.community_id | append: ".svg" %}
+{% assign communitygraph_path = "/assets/images/communitygraphs/" | append: page.community_id | append: ".png" %}
 {% assign communitygraphs = site.static_files | where: "path", communitygraph_path %}
 {% if communitygraphs.size > 0 %}
   <img src="..{{ communitygraphs[0].path }}" class="img-communitygraph">
