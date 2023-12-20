@@ -11,8 +11,6 @@ from typing import (
 import numpy as np
 import pandas as pd
 import networkx as nx
-import matplotlib; matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import skimage, skimage.io, skimage.transform
 import scipy.ndimage as ndi
 from PIL import Image, ImageDraw

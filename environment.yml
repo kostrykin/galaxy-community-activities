@@ -10,7 +10,6 @@ dependencies:
   - ruby
   - pip
   - networkx
-  - matplotlib
   - scikit-image
   - numpy
   - scipy
