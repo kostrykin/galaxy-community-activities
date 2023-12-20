@@ -1,6 +1,8 @@
 _site
 communities
+contributors
 _data/communities_data
+_data/contributors_data
 assets/images/communitygraphs
 .sass-cache
 .jekyll-cache

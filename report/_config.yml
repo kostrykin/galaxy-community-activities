@@ -2,6 +2,7 @@ name: Galaxy Community Activities
 
 include:
   - communities
+  - contributors
 
 defaults:
   - scope:

@@ -89,8 +89,51 @@ def update_communities():
             fp.write(template.render(community = community))
 
 
+def get_contributors():
+
+    # Get cached contributors
+    repositories = cache.get_cached_repositories()
+
+    # Read cached repositories
+    df_list = list()
+    for repo in repositories:
+        df = pd.read_csv(cache.get_cached_repository_filepath(repo))
+        df['repository'] = repo
+        df.author.fillna('')
+        df_list.append(df)
+    df = pd.concat(df_list)
+
+    # Sort by contributors
+    contributors = df.author.drop_duplicates().values
+    return {contributor: df[df['author'] == contributor] for contributor in contributors}
+
+
+def update_contributors():
+    contributions_data_dir = 'report/_data/contributors_data'
+    os.makedirs(contributions_data_dir, exist_ok=True)
+
+    # Load template
+    with open('report/_contributor.md') as fp:
+        template = Template(fp.read())
+
+    # Render contributor pages
+    os.makedirs('report/contributors', exist_ok=True)
+    for contributor, contributions in tqdm(get_contributors().items(), desc='Updating contributors'):
+        contributions.to_csv(f'{contributions_data_dir}/{contributor}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+        ## Render community graph for the last year (if there is more than one repository)
+        #if len(df.repository.drop_duplicates()) > 1:
+        #    since = datetime.now() - timedelta(days=365)
+        #    communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.png', cid, community['name'], since=since)
+
+        # Render the community template
+        with open(f'report/contributors/{contributor}.md', 'w') as fp:
+            fp.write(template.render(contributor = contributor))
+
+
 def update():
     update_communities()
+    update_contributors()
 
 
 def build():

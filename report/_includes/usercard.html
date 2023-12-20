@@ -8,7 +8,7 @@
   <img src="{{ avatar.avatar_url }}" class="avatar img-circle">
   {% endif %}
   <div class="usercard-body">
-    <h1><a href="https://github.com/{{ include.name }}">{{ include.name }}</a></h1>
+    <h1><a href="../contributors/{{ include.name }}.html">{{ include.name }}</a></h1>
     <p class="text-muted"><b>Commits:</b> {{ include.commits.size }}</p>
     <p class="text-muted"><b>Contributed to:</b>
     <a href="https://github.com/{{ repositories[0].name }}">{{ repositories[0].name }}</a>
