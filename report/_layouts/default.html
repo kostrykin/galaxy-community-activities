@@ -78,8 +78,9 @@ img.img-repository-icon {
 }
 
 img.img-communitygraph {
-  width: 100%;
-  margin-top: 1em;
+  max-width: 50rem;
+  max-height: 50rem;
+  margin: 1rem;
 }
 </style>
 
@@ -115,7 +116,7 @@ img.img-communitygraph {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 
 <script language="javascript">
-$("[data-toggle=popover]").popover({html: true})
+{{ page.javascript }}
 </script>
 
 </body>

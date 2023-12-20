@@ -127,7 +127,7 @@ class AvatarCache:
                 skimage.io.imsave(self.get_filename(name), skimage.img_as_ubyte(avatar))
 
 
-def render_community_graph(filepath: str, community_id: str, cache_dir: str='cache/avatars', since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
+def render_community_graph(filepath: str, community_id: str, community_name: str, cache_dir: str='cache/avatars', since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
     assert spread > 0, spread
 
     df_community = pd.read_csv(f'report/_data/communities_data/{community_id}.csv')
@@ -174,13 +174,22 @@ def render_community_graph(filepath: str, community_id: str, cache_dir: str='cac
     A.graph_attr.update(outputorder='edgesfirst')
     A.graph_attr.update(overlap='prism')
     A.graph_attr.update(overlap_scaling='-1')
-    A.node_attr.update(fontname='Arial')
+    A.graph_attr.update(labelloc='t')
+    A.graph_attr.update(labeljust='l')
+    A.graph_attr.update(fontsize='42')
+    A.graph_attr.update(fontname='Helvetica')
+    A.node_attr.update(fontname='Helvetica')
     A.node_attr.update(fontsize='28')
     A.node_attr.update(labelloc='b')
     A.node_attr.update(penwidth=0)
     A.edge_attr.update(penwidth=10)
     A.edge_attr.update(color='0 0 1')
     A.layout(prog='neato')
+
+    datetime_fmt = '%d.%m.%Y'
+    since_str = pd.to_datetime(df_community.timestamp.min(), utc=True).strftime(datetime_fmt)
+    until_str = pd.to_datetime(df_community.timestamp.max(), utc=True).strftime(datetime_fmt)
+    A.graph_attr.update(label=f'{community_name} ({since_str}–{until_str})')
 
     # Draw the graph
     fmt = filepath.split('.')[-1].lower()
