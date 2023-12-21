@@ -1,5 +1,8 @@
-from . import cache
-from . import communitygraph
+from . import (
+    cache,
+    communitygraph,
+    contributiongraph,
+)
 
 import os
 import csv
@@ -7,6 +10,7 @@ import urllib.request
 from datetime import (
     datetime,
     timedelta,
+    timezone,
 )
 
 import pandas as pd
@@ -109,22 +113,25 @@ def get_contributors():
 
 
 def update_contributors():
-    contributions_data_dir = 'report/_data/contributors_data'
-    os.makedirs(contributions_data_dir, exist_ok=True)
+    contributors_data_dir = 'report/_data/contributors_data'
+    os.makedirs(contributors_data_dir, exist_ok=True)
 
     # Load template
     with open('report/_contributor.md') as fp:
         template = Template(fp.read())
 
+    # Prepare directory for contribution graphs
+    contributiongraphs_dir = 'report/assets/images/contributiongraphs'
+    os.makedirs(contributiongraphs_dir, exist_ok=True)
+
     # Render contributor pages
     os.makedirs('report/contributors', exist_ok=True)
     for contributor, contributions in tqdm(get_contributors().items(), desc='Updating contributors'):
-        contributions.to_csv(f'{contributions_data_dir}/{contributor}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+        contributions.to_csv(f'{contributors_data_dir}/{contributor}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
 
-        ## Render community graph for the last year (if there is more than one repository)
-        #if len(df.repository.drop_duplicates()) > 1:
-        #    since = datetime.now() - timedelta(days=365)
-        #    communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.png', cid, community['name'], since=since)
+        # Render contribution graph for the last year
+        since = datetime.now(timezone.utc) - timedelta(days=365)
+        contributiongraph.render_contribution_graph(f'{contributiongraphs_dir}/{contributor}.png', contributor, since=since)
 
         # Render the community template
         with open(f'report/contributors/{contributor}.md', 'w') as fp:

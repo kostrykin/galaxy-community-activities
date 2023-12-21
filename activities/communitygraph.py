@@ -9,11 +9,11 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 
-from .graphs import AvatarCache
-
-
-node_label_prefix = '\n\n\n\n\n'
-node_kwargs = dict(shape='box')
+from .graphs import (
+    AvatarCache,
+    node_label_prefix,
+    node_kwargs,
+)
 
 
 def remove_edges_from(G, n):
@@ -53,9 +53,7 @@ def simplify_graph(G: nx.Graph, authors, repositories, avatar_cache, max_edges=5
             G.remove_node(n)
 
 
-def render_community_graph(filepath: str, community_id: str, community_name: str, cache_dir: str='cache/avatars', since: Optional[datetime]=None, until: Optional[datetime]=None, spread: float=1, seed: int=1):
-    assert spread > 0, spread
-
+def render_community_graph(filepath: str, community_id: str, community_name: str, since: Optional[datetime]=None, until: Optional[datetime]=None):
     df_community = pd.read_csv(f'report/_data/communities_data/{community_id}.csv')
     if since is not None:
         df_community = df_community[df_community['timestamp'] >= since.strftime('%Y-%m-%d')]
@@ -69,7 +67,7 @@ def render_community_graph(filepath: str, community_id: str, community_name: str
     repositories = np.unique([repository for repository in df_community['repository'].tolist() if len(repository) > 0])
 
     # Get required avatars
-    avatar_cache = AvatarCache(cache_dir)
+    avatar_cache = AvatarCache()
     avatar_cache.load(authors, repositories)
 
     # Create graph

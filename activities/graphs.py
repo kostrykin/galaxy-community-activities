@@ -8,6 +8,10 @@ import scipy.ndimage as ndi
 from PIL import Image, ImageDraw
 
 
+node_label_prefix = '\n\n\n\n\n'
+node_kwargs = dict(shape='box')
+
+
 def load_image_url(url):
     img = skimage.io.imread(url, plugin='matplotlib')
     return skimage.img_as_float(img)
@@ -43,7 +47,7 @@ def image_to_rounded_square(img):
 
 class AvatarCache:
 
-    def __init__(self, cache_dir):
+    def __init__(self, cache_dir='cache/avatars'):
         self.cache_dir = cache_dir
 
     def get_filename(self, name):
