@@ -85,7 +85,7 @@ def update_communities():
 
         # Render community graph for the last year (if there is more than one repository)
         if len(df.repository.drop_duplicates()) > 1:
-            since = datetime.now() - timedelta(days=365)
+            since = datetime.now(timezone.utc) - timedelta(days=365)
             communitygraph.render_community_graph(f'{communitygraphs_dir}/{cid}.png', cid, community['name'], since=since)
 
         # Render the community template
@@ -131,7 +131,8 @@ def update_contributors():
 
         # Render contribution graph for the last year
         since = datetime.now(timezone.utc) - timedelta(days=365)
-        contributiongraph.render_contribution_graph(f'{contributiongraphs_dir}/{contributor}.png', contributor, since=since)
+        until = datetime.now(timezone.utc)
+        contributiongraph.render_contribution_graph(f'{contributiongraphs_dir}/{contributor}.png', contributor, since=since, until=until)
 
         # Render the community template
         with open(f'report/contributors/{contributor}.md', 'w') as fp:

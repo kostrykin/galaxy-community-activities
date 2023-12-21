@@ -1,5 +1,9 @@
 import warnings
 import os, os.path
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 import numpy as np
 import pandas as pd
@@ -80,3 +84,13 @@ class AvatarCache:
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore')
                 skimage.io.imsave(self.get_filename(name), skimage.img_as_ubyte(avatar))
+
+
+def filter_by_timestamp(df, first_day=None, last_day=None):
+    if first_day is not None and len(df) > 0:
+        datetimes = pd.to_datetime(df['timestamp'])
+        df = df[datetimes >= first_day.replace(hour=0, minute=0, second=0, microsecond=0)]
+    if last_day is not None and len(df) > 0:
+        datetimes = pd.to_datetime(df['timestamp'])
+        df = df[datetimes < last_day.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)]
+    return df

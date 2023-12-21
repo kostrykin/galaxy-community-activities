@@ -13,6 +13,7 @@ from .graphs import (
     AvatarCache,
     node_label_prefix,
     node_kwargs,
+    filter_by_timestamp,
 )
 
 
@@ -55,10 +56,7 @@ def simplify_graph(G: nx.Graph, authors, repositories, avatar_cache, max_edges=5
 
 def render_community_graph(filepath: str, community_id: str, community_name: str, since: Optional[datetime]=None, until: Optional[datetime]=None):
     df_community = pd.read_csv(f'report/_data/communities_data/{community_id}.csv')
-    if since is not None:
-        df_community = df_community[df_community['timestamp'] >= since.strftime('%Y-%m-%d')]
-    if until is not None:
-        df_community = df_community[df_community['timestamp'] <= until.strftime('%Y-%m-%d')]
+    df_community = filter_by_timestamp(df_community, first_day=since, last_day=until)
 
     # Get involed authors and repositories
     df_community.author = df_community.author.fillna('')
