@@ -13,6 +13,7 @@ dependencies:
   - scikit-image
   - numpy
   - scipy
+  - matplotlib # required as plugin for skimage.io.imread
   - pip:
     - PyGithub
     - pyyaml
