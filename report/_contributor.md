@@ -37,11 +37,32 @@ breadcrumb:
 {% assign contributiongraphs = site.static_files | where: "path", contributiongraph_path %}
 {% if contributiongraphs.size > 0 %}
   {% assign contributiongraph = ".." | append: contributiongraphs[0].path %}
-  <img src="{{ contributiongraph }}" class="img-contributiongraph">
+  <p><img src="{{ contributiongraph }}" class="img-contributiongraph"></p>
 {% endif %}
+
+{% assign repositories = commits_last_year | group_by: "repository" %}
+{% for repo in repositories %}
+  {% assign repo_id = repo.name | slugify %}
+  <p>
+    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ repo_id }}" aria-expanded="false" aria-controls="{{ repo_id }}">
+      {{ repo.name }}
+    </button>
+    ({{ repo.items.size }})
+    <div class="collapse" id="{{ repo_id }}">
+      <div class="card card-body">
+        <ol>
+          {% for c in repo.items %}
+            <li><a href="https://github.com/search?q=repo%3A{{ repo.name | uri_escape }}+sha%3A{{ c.sha | uri_escape }}&type=commits">{{ c.sha }}</a></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </p>
+{% endfor %}
 
   </div>
 </div>
 </div>
+
 
 {% endraw %}
