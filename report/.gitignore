@@ -4,6 +4,7 @@ contributors
 _data/communities_data
 _data/contributors_data
 assets/images/communitygraphs
+assets/images/contributiongraphs
 .sass-cache
 .jekyll-cache
 .jekyll-metadata
