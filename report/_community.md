@@ -38,6 +38,15 @@ javascript: |
   {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
 
+{% if groups.size > 6 %}
+<p>
+And also:
+{% for g in groups offset: 6 %}
+  <a href="../contributors/{{ g.name }}.html">{{ g.name }}</a>{% if forloop.last == false %},{% endif %}
+{% endfor %}
+</p>
+{% endif %}
+
 ---
 
 {% assign since_year = site.time | date: '%Y' | minus:1 %}
@@ -52,6 +61,15 @@ javascript: |
 {% for g in groups limit: 6 %}
   {% include usercard.html name = g.name commits = g.items %}
 {% endfor %}
+
+{% if groups.size > 6 %}
+<p>
+And also:
+{% for g in groups offset: 6 %}
+  <a href="../contributors/{{ g.name }}.html">{{ g.name }}</a>{% if forloop.last == false %},{% endif %}
+{% endfor %}
+</p>
+{% endif %}
 
 <h3><small><b>New contributors:</b></small></h3>
 {% assign groups = commits | group_by: "author" | sort: "size" | reverse %}
