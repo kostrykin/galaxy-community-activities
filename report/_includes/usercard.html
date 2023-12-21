@@ -5,7 +5,7 @@
 
 <div class="usercard">
   {% if avatar.avatar_url %}
-  <img src="{{ avatar.avatar_url }}" class="avatar img-circle">
+  <a href="../contributors/{{ include.name }}.html"><img src="{{ avatar.avatar_url }}" class="avatar img-circle"></a>
   {% endif %}
   <div class="usercard-body">
     <h1><a href="../contributors/{{ include.name }}.html">{{ include.name }}</a></h1>
