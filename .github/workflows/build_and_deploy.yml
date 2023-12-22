@@ -29,10 +29,8 @@ jobs:
           git clone https://github.com/kostrykin/galaxy-community-activities.git
           rm -rf galaxy-community-activities/.git
           rm -rf report
-          [ ! -d cache ] || mv cache cache.old
+          [ ! -d cache ] || rm -rf cache
           mv -f galaxy-community-activities/* ./
-          [ ! -d cache.old/avatars ] || mv cache.old/avatars cache/avatars
-          [ ! -d cache.old ] || rm -rf cache.old
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v2
