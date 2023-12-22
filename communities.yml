@@ -6,7 +6,7 @@ communities:
     - galaxyproject/galaxy
 
   - id: gtn
-    name: Training Platform
+    name: Training Network
     repositories:
     - galaxyproject/training-material
 
