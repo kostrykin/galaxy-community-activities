@@ -133,7 +133,7 @@ def get_updated_tools(repository: Repository, commit: Commit, tool_directories: 
                     updated_tool_categories |= set(categories)
 
                     # If reading the categories was successful, i.e. the shed file is valid, also record the tool name
-                    updated_tool_names.insert(directory.name)
+                    updated_tool_names.add(directory.name)
 
                 # Do nothing if the file is not valid YAML or otherwise malformed
                 except (yaml.YAMLError, AssertionError):
@@ -217,7 +217,7 @@ def get_commit_author(commit: Commit) -> Optional[str]:
 def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetime]=None) -> pd.DataFrame:
     repository = rinfo.get_repository(g)
     cached_df = cache.get_cached_commit_history(repository)
-    new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
+    new_entries = {c: list() for c in cached_df.columns}
 
     # Currently known tool directories, initially unknown
     tool_directories: FrozenSet[str] = None
