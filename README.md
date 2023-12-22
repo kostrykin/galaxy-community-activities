@@ -1,6 +1,10 @@
 # [galaxy-community-activities]()
 
+[![Build and deploy](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build.yml/badge.svg)](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build.yml)
+
 Tool which reports and summarizes activities within a Galaxy community.
+
+Updates are scheduled weekly.
 
 ## Local setup
 
