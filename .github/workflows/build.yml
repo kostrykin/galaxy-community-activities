@@ -66,8 +66,9 @@ jobs:
 
       - name: Install Jekyll
         run: |
-          gem install jekyll
-          ln -s $(which ruby) $CONDA_PREFIX/share/rubygems/bin/
+          conda info
+          sudo gem install jekyll
+          sudo ln -s $(which ruby) $CONDA/share/rubygems/bin/
 
       - name: Build report
         run: python -m activities.cli --report
