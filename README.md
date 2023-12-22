@@ -1,6 +1,7 @@
 # [galaxy-community-activities]()
 
-[![Build and deploy](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build.yml/badge.svg)](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build.yml)
+[![Update cache](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/update_cache.yml/badge.svg)](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/update_cache.yml)
+[![Build and deploy](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build_and_deploy.yml/badge.svg)](https://github.com/kostrykin/galaxy-community-activities/actions/workflows/build_and_deploy.yml)
 
 Tool which reports and summarizes activities within a Galaxy community.
 
