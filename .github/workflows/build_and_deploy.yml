@@ -9,7 +9,6 @@ on:
 jobs:
 
   build_and_deploy:
-    needs: update_cache
     name: Build and deploy report
     permissions:
       contents: write
