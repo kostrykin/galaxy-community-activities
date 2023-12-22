@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: gh-pages
+          fetch-depth: 1  # With this git commit --amend will overwrite the whole history
 
       - name: Fetch sources
         shell: bash
@@ -56,8 +57,11 @@ jobs:
             rm -rf report
             mv _site report
 
-      - name: Deploy to GitHub Pages
+      - name: Squash and deploy to GitHub Pages
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'report cache/avatars'
+          file_pattern: 'report'
           commit_message: Build and deploy report
+          commit_options: '--amend --no-edit'
+          push_options: '--force'
+          skip_fetch: true
