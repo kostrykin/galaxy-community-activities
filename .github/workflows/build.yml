@@ -65,13 +65,14 @@ jobs:
           environment-file: environment.yml
 
       - name: Install Jekyll
-        shell: bash
+        shell: bash -l {0}
         run: |
           conda info
           gem install jekyll
           ln -s $(which ruby) $CONDA/share/rubygems/bin/
 
       - name: Build report
+        shell: bash -l {0}
         run: python -m activities.cli --report
 
       - name: Deploy to GitHub Pages
