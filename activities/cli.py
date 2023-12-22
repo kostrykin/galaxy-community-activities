@@ -31,6 +31,10 @@ if __name__ == '__main__':
 
         if args.api is None:
             args.api = os.environ.get('GITHUB_TOKEN')
+            if args.api is None or len(args.api) == 0:
+                print('*** WARNING: No GitHub Token set ***')
+            else:
+                print('Using GitHub from $GITHUB_TOKEN')
 
         g: fetch.Github = fetch.Github(args.api)
         until = fetch.datetime(year=args.until, month=12, day=31, hour=23, minute=59, second=59) if args.until is not None else None
