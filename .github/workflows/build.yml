@@ -35,6 +35,9 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
     steps:
 
       - name: Initialize
@@ -65,14 +68,12 @@ jobs:
           environment-file: environment.yml
 
       - name: Install Jekyll
-        shell: bash -l {0}
         run: |
           conda info
           gem install jekyll
-          ln -s $(which ruby) $CONDA/share/rubygems/bin/
+          ln -s $(which ruby) $CONDA_PREFIX/share/rubygems/bin/
 
       - name: Build report
-        shell: bash -l {0}
         run: python -m activities.cli --report
 
       - name: Deploy to GitHub Pages
