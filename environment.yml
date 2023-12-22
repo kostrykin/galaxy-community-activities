@@ -19,3 +19,4 @@ dependencies:
     - pyyaml
     - tqdm
     - python-liquid
+    - pygraphviz
