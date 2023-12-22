@@ -20,5 +20,5 @@ python -m activities.cli --fetch
 ## Build the report from cache
 
 ```bash
-python -m activities.report
+python -m activities.cli --report
 ```
