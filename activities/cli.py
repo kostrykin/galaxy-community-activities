@@ -5,11 +5,6 @@ from typing import (
     List,
 )
 
-from . import (
-    fetch,
-    report,
-)
-
 assert sys.version_info >= (3, 10)
 
 
@@ -32,6 +27,7 @@ if __name__ == '__main__':
         parser.error('No action requested, add --fetch or --report')
 
     if args.fetch:
+        from . import fetch
 
         if args.api is None:
             args.api = os.environ.get('GITHUB_TOKEN')
@@ -58,6 +54,7 @@ if __name__ == '__main__':
         fetch.get_all_avatars(g)
 
     if args.report:
+        from . import report
 
         report.update()
         report.build()
