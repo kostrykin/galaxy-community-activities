@@ -2,8 +2,9 @@ name: Build and deploy
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 1 * * 1'  ## At 01:00 AM on every Monday
+  workflow_run:
+    workflows: [Update cache]
+    types: [completed]
 
 jobs:
   update_cache:
