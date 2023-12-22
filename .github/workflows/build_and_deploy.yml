@@ -57,5 +57,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'report/* cache/avatars'
+          file_pattern: 'report/site cache/avatars'
           commit_message: Build and deploy report
