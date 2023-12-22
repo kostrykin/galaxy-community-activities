@@ -29,12 +29,6 @@ jobs:
         with:
           commit_message: Update cache
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.ref_name }}
-          path: build
-
   build_report:
     needs: update_cache
     name: Build and deploy report
@@ -49,14 +43,15 @@ jobs:
           ref: gh-pages
 
       - name: Fetch sources
+        shell: bash
         run: |
           git clone https://github.com/kostrykin/galaxy-community-activities.git
           rm -rf galaxy-community-activities/.git
           rm -rf report
-          mv cache cache.old
+          [ ! -d cache ] || mv cache cache.old
           mv -f galaxy-community-activities/* ./
-          mv cache.old/avatars cache/avatars
-          rm -rf cache.old
+          [ ! -d cache.old/avatars ] || mv cache.old/avatars cache/avatars
+          [ ! -d cache.old ] || rm -rf cache.old
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v2
