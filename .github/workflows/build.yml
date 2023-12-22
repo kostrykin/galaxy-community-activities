@@ -1,0 +1,81 @@
+name: Build and deploy
+
+on:
+  schedule:
+    - cron: '0 1 * * 1'  ## At 01:00 AM on every Monday
+
+jobs:
+  update_cache:
+    name: Update cache
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Initialize
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: pip install pandas PyGithub pyyaml tqdm
+
+      - name: Update cache
+        run: python -m activities.cli --fetch
+
+      - name: Commit and push updated cache
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update cache
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.ref_name }}
+          path: build
+
+  build_report:
+    needs: update_cache
+    name: Build and deploy report
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Initialize
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+
+      - name: Fetch sources
+        run: |
+          git clone https://github.com/kostrykin/galaxy-community-activities.git
+          rm -rf galaxy-community-activities/.git
+          rm -rf report
+          mv cache cache.old
+          mv -f galaxy-community-activities/* ./
+          mv cache.old/avatars cache/avatars
+          rm -rf cache.old
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          channels: conda-forge, defaults
+          use-only-tar-bz2: true  # IMPORTANT: This needs to be set for caching to work properly!
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: galaxy-community-activities
+          environment-file: environment.yml
+
+      - name: Install Jekyll
+        run: |
+          gem install jekyll
+          ln -s $(which ruby) $CONDA_PREFIX/share/rubygems/bin/
+
+      - name: Build report
+        run: python -m activities.cli --report
+
+      - name: Deploy to GitHub Pages
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'report/* cache/avatars'
+          commit_message: Build and deploy report
