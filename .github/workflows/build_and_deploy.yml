@@ -52,10 +52,14 @@ jobs:
           ln -s $(which ruby) $CONDA_PREFIX/share/rubygems/bin/
 
       - name: Build report
-        run: python -m activities.cli --report
+        run: |
+            python -m activities.cli --report
+            mv report/_site ./
+            rm -rf report
+            mv _site report
 
       - name: Deploy to GitHub Pages
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'report/site cache/avatars'
+          file_pattern: 'report cache/avatars'
           commit_message: Build and deploy report
