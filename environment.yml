@@ -14,9 +14,9 @@ dependencies:
   - numpy
   - scipy
   - matplotlib # required as plugin for skimage.io.imread
+  - pygraphviz
   - pip:
     - PyGithub
     - pyyaml
     - tqdm
     - python-liquid
-    - pygraphviz
