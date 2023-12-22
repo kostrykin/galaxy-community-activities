@@ -110,11 +110,12 @@ def get_tool_directories(repository: Repository, commit: Commit, status: Optiona
         return frozenset()
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> FrozenSet[str]:
+def get_updated_tools(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> FrozenSet[str]:
     """
-    Get list of the tool categories for which tools have been added, updated, or removed.
+    Get list of the tools (names and categories) for which tools have been added, updated, or removed.
     """
     updated_tool_categories: Set[str] = set()
+    updated_tool_names: Set[str] = set()
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -131,6 +132,9 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                     assert categories is not None and all(map(lambda item: isinstance(item, str), categories))
                     updated_tool_categories |= set(categories)
 
+                    # If reading the categories was successful, i.e. the shed file is valid, also record the tool name
+                    updated_tool_names.insert(directory.name)
+
                 # Do nothing if the file is not valid YAML or otherwise malformed
                 except (yaml.YAMLError, AssertionError):
                     pass
@@ -138,7 +142,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 # We are done with this file, since a shed file was found
                 break
 
-    return list(sorted(updated_tool_categories))
+    return list(sorted(updated_tool_categories)), list(sorted(updated_tool_names))
 
 
 class process_new_commits:
@@ -239,18 +243,22 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
 
             new_entries['author'].append('')
             new_entries['categories'].append('')
+            new_entries['tools'].append('')
 
         else:
 
             # If enabled, fetch the directory tree and get list of updated tool categories
+            updated_tool_categories: List[str]
+            updated_tool_names: List[str]
             if rinfo.scan_tools:
                 tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
-                updated_tool_categories: FrozenSet[str] = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+                updated_tool_categories, updated_tool_names = get_updated_tools(repository, commit, tool_directories, pnc.status)
             else:
-                updated_tool_categories: FrozenSet[str] = frozenset()
+                updated_tool_categories, updated_tool_names = list(), list()
 
             new_entries['author'].append(author)
             new_entries['categories'].append(','.join(updated_tool_categories))
+            new_entries['tools'].append(','.join(updated_tool_names))
 
         new_entries['timestamp'].append(str(datetime))
         new_entries['sha'].append(short_sha)

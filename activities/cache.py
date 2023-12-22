@@ -25,7 +25,8 @@ def get_cached_commit_history(repository: Repository) -> pd.DataFrame:
     if pathlib.Path(cache_filename).is_file():
         return pd.read_csv(cache_filename)
     else:
-        return pd.DataFrame(columns=['author', 'timestamp', 'categories', 'sha'])
+        # The "tools" column lists the names of the changed directories which contain a shed file
+        return pd.DataFrame(columns=['author', 'timestamp', 'categories', 'tools', 'sha'])
 
 
 def set_cached_commit_history(repository: Repository, history: pd.DataFrame):
