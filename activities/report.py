@@ -6,6 +6,7 @@ from . import (
 
 import os
 import csv
+import json
 import urllib.request
 from datetime import (
     datetime,
@@ -46,13 +47,20 @@ def get_community_dataframe(community):
     df_list = list()
     for repo in repositories:
         df = pd.read_csv(cache.get_cached_repository_filepath(repo))
-        df.categories = df.categories.fillna('')
+        df.tools = df.tools.fillna('[]')
         if categories is not None:
             drop_idx_list = list()
-            for row_idx, row in enumerate(df['categories']):
-                row_categories = [c.lower().strip() for c in row.split(',')]
-                if not any([c.lower() in row_categories for c in categories]):
+            for row_idx, row in enumerate(df.tools):
+                row_tools = json.loads(row)
+                community_tools = set()
+                for tool in row_tools:
+                    tool_categories = frozenset([c.lower().strip() for c in tool['categories']])
+                    if any([c.lower() in tool_categories for c in categories]):
+                        community_tools.add(tool['name'])
+                if len(row_tools) == 0:
                     drop_idx_list.append(row_idx)
+                else:
+                    pass ## TODO: replace `row_tools` by `json.dumps(list(sorted(community_tools)))`
             df.drop(drop_idx_list, inplace=True)
         df['repository'] = repo
         df_list.append(df)

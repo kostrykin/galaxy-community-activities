@@ -4,6 +4,7 @@ import base64
 import re
 import pathlib
 import csv
+import json
 import urllib.request
 import collections
 import random
@@ -110,12 +111,11 @@ def get_tool_directories(repository: Repository, commit: Commit, status: Optiona
         return frozenset()
 
 
-def get_updated_tools(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> FrozenSet[str]:
+def get_updated_tools(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> List[dict]:
     """
-    Get list of the tools (names and categories) for which tools have been added, updated, or removed.
+    Get list of the tools for which tools have been added, updated, or removed.
     """
-    updated_tool_categories: Set[str] = set()
-    updated_tool_names: Set[str] = set()
+    updated_tools: List[str] = list()
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -130,10 +130,10 @@ def get_updated_tools(repository: Repository, commit: Commit, tool_directories: 
                     assert shed_data is not None
                     categories = shed_data.get('categories')
                     assert categories is not None and all(map(lambda item: isinstance(item, str), categories))
-                    updated_tool_categories |= set(categories)
 
-                    # If reading the categories was successful, i.e. the shed file is valid, also record the tool name
-                    updated_tool_names.add(directory.name)
+                    # Record the tool if reading the categories was successful, i.e. the shed file is valid
+                    tool = dict(name = directory.name, categories = list(sorted(categories)))
+                    updated_tools.append(tool)
 
                 # Do nothing if the file is not valid YAML or otherwise malformed
                 except (yaml.YAMLError, AssertionError):
@@ -142,7 +142,7 @@ def get_updated_tools(repository: Repository, commit: Commit, tool_directories: 
                 # We are done with this file, since a shed file was found
                 break
 
-    return list(sorted(updated_tool_categories)), list(sorted(updated_tool_names))
+    return list(sorted(updated_tools, key=lambda tool: tool['name']))
 
 
 class process_new_commits:
@@ -242,23 +242,20 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
         if author is None:
 
             new_entries['author'].append('')
-            new_entries['categories'].append('')
             new_entries['tools'].append('')
 
         else:
 
-            # If enabled, fetch the directory tree and get list of updated tool categories
-            updated_tool_categories: List[str]
-            updated_tool_names: List[str]
+            # If enabled, fetch the directory tree and get list of updated tools
+            updated_tool: List[dict]
             if rinfo.scan_tools:
                 tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
-                updated_tool_categories, updated_tool_names = get_updated_tools(repository, commit, tool_directories, pnc.status)
+                updated_tools = get_updated_tools(repository, commit, tool_directories, pnc.status)
             else:
-                updated_tool_categories, updated_tool_names = list(), list()
+                updated_tools = list()
 
             new_entries['author'].append(author)
-            new_entries['categories'].append(','.join(updated_tool_categories))
-            new_entries['tools'].append(','.join(updated_tool_names))
+            new_entries['tools'].append(json.dumps(updated_tools))
 
         new_entries['timestamp'].append(str(datetime))
         new_entries['sha'].append(short_sha)
