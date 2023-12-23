@@ -116,6 +116,7 @@ def get_updated_tools(repository: Repository, commit: Commit, tool_directories: 
     Get list of the tools for which tools have been added, updated, or removed.
     """
     updated_tools: List[str] = list()
+    read_shed_files: Set[str] = set()
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -123,6 +124,10 @@ def get_updated_tools(repository: Repository, commit: Commit, tool_directories: 
                 shed_filepath = str(directory / SHED_FILENAME)
                 if status is not None: status.set_description_str(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
+
+                # Make sure each tool (shed file) is processed only once
+                if shed_file in read_shed_files: continue
+                read_shed_files.add(shed_file)
 
                 # Read the updated tool categories and add to set
                 try:
