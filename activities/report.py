@@ -60,7 +60,7 @@ def get_community_dataframe(community):
                 if len(row_tools) == 0:
                     drop_idx_list.append(row_idx)
                 else:
-                    pass ## TODO: replace `row_tools` by `json.dumps(list(sorted(community_tools)))`
+                    df.tools.iloc[row_idx] = json.dumps(list(sorted(community_tools)))
             df.drop(drop_idx_list, inplace=True)
         df['repository'] = repo
         df_list.append(df)
