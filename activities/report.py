@@ -57,7 +57,7 @@ def get_community_dataframe(community):
                     tool_categories = frozenset([c.lower().strip() for c in tool['categories']])
                     if any([c.lower() in tool_categories for c in categories]):
                         community_tools.add(tool['name'])
-                if len(row_tools) == 0:
+                if len(community_tools) == 0:
                     drop_idx_list.append(row_idx)
                 else:
                     df.tools.iloc[row_idx] = json.dumps(list(sorted(community_tools)))
