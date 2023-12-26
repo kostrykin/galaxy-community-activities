@@ -20,6 +20,19 @@ from liquid import Template
 from tqdm import tqdm
 
 
+def expand_list(elist):
+    items = list()
+    for info in elist:
+        if 'expand' in info:
+            for item in urllib.request.urlopen(info['expand']):
+                item = item.decode('utf-8').strip()
+                items.append(item)
+        else:
+            assert isinstance(info, str), str(info)
+            items.append(info)
+    return items
+
+
 def get_community_dataframe(community):
 
     # Get list of repositories relevant to the community
@@ -30,38 +43,69 @@ def get_community_dataframe(community):
 
     # Get list of tool categories relevant to the community (if any)
     if 'categories' in community:
-        categories = list()
-        for cinfo in community['categories']:
-            if 'expand' in cinfo:
-                for category in urllib.request.urlopen(cinfo['expand']):
-                    category = category.decode('utf-8').strip()
-                    categories.append(category)
-            else:
-                assert isinstance(cinfo, str), str(cinfo)
-                categories.append(cinfo)
-                
+        categories = expand_list(community['categories'])
     else:
         categories = None
+
+    # Get list of tools to keep even if it was ruled out due to the categories
+    if 'keep-tools' in community:
+        keep_tools = frozenset(expand_list(community['keep-tools']))
+    else:
+        keep_tools = frozenset()
+
+    # Get list of tools to exclude even if categories match
+    if 'exclude-tools' in community:
+        exclude_tools = frozenset(expand_list(community['exclude-tools']))
+    else:
+        exclude_tools = frozenset()
 
     # Read the repositories and keep only the rows with matching categories
     df_list = list()
     for repo in repositories:
         df = pd.read_csv(cache.get_cached_repository_filepath(repo))
         df.tools = df.tools.fillna('[]')
-        if categories is not None:
+        if categories is not None or len(keep_tools) > 0:
+
+            # List of commits (row indices) to drop from the current dataframe
             drop_idx_list = list()
+
             for row_idx, row in enumerate(df.tools):
                 row_tools = json.loads(row)
+
+                # Names of tools from this community, affected by the current commit
                 community_tools = set()
+
+                # Iterate all tools affected by the current commit…
                 for tool in row_tools:
-                    tool_categories = frozenset([c.lower().strip() for c in tool['categories']])
-                    if any([c.lower() in tool_categories for c in categories]):
+                    keep = True
+
+                    # …and filter by categories:
+                    if categories is not None:
+                        tool_categories = frozenset([c.lower().strip() for c in tool['categories']])
+                        if not any([c.lower() in tool_categories for c in categories]):
+                            keep = False
+
+                    # …but also apply the rules from tool lists:
+                    if tool['name'] in keep_tools:
+                        keep = True
+
+                    if tool['name'] in exclude_tools:
+                        keep = False
+
+                    if keep:
                         community_tools.add(tool['name'])
+
+                # Drop this commit if it didn't concern any tools from this community
                 if len(community_tools) == 0:
                     drop_idx_list.append(row_idx)
+
+                # Otherwise, keep it and also record the names of the concerned tools
                 else:
                     df.tools.iloc[row_idx] = json.dumps(list(sorted(community_tools)))
+
+            # Drop the commits listed for removal
             df.drop(drop_idx_list, inplace=True)
+
         df['repository'] = repo
         df_list.append(df)
     return pd.concat(df_list)
@@ -149,7 +193,7 @@ def update_contributors():
 
 def update():
     update_communities()
-    update_contributors()
+    #update_contributors()
 
 
 def build():
