@@ -305,6 +305,7 @@ def get_avatars(g: Github, column: str, cache_df: pd.DataFrame, get_avatar_url: 
         cache_data['timestamp'].append(now + timedelta(days=7 + random.randint(0, 23)))
 
     cache_df = pd.DataFrame(cache_data)
+    cache_df.drop_duplicates(subset=[cache_column], keep='last', inplace=True)
     cache_df.sort_values(cache_column, inplace=True)
     return cache_df
 

@@ -17,7 +17,11 @@ node_kwargs = dict(shape='box')
 
 
 def load_image_url(url):
-    img = skimage.io.imread(url, plugin='matplotlib')
+    try:
+        img = skimage.io.imread(url, plugin='matplotlib')
+    except:
+        print(f'\nFailed to load image from URL: "{url}"\n')
+        raise
     return skimage.img_as_float(img)
 
 
