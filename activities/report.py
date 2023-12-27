@@ -101,7 +101,7 @@ def get_community_dataframe(community):
 
                 # Otherwise, keep it and also record the names of the concerned tools
                 else:
-                    df.tools.iloc[row_idx] = json.dumps(list(sorted(community_tools)))
+                    df.tools.iloc[row_idx] = ",".join(list(sorted(community_tools)))
 
             # Drop the commits listed for removal
             df.drop(drop_idx_list, inplace=True)

@@ -47,6 +47,32 @@ And also:
 </p>
 {% endif %}
 
+{% assign tools = "" | split: "." %}
+
+{% for c in commits %}
+  {% assign c_tools = c.tools | split: "," %}
+  {% for t in c_tools %}
+    {% assign tools = tools | push: t | uniq %}
+  {% endfor %}
+{% endfor %}
+
+{% if tools %}
+{% assign tools = tools | sort %}
+Overall contributed tools:
+<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#tool-list" aria-expanded="false" aria-controls="tool-list">
+  {{ tools.size }} tools
+</button>
+<div class="collapse" id="tool-list">
+  <div class="card card-body">
+    <ol>
+      {% for tool in tools %}
+      <li>{{ tool }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
+{% endif %}
+
 ---
 
 {% assign since_year = site.time | date: '%Y' | minus:1 %}
