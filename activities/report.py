@@ -275,7 +275,7 @@ def update_contributors():
 
 def update():
     update_communities()
-    #update_contributors()
+    update_contributors()
 
 
 def build():
