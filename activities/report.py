@@ -14,10 +14,16 @@ from datetime import (
     timezone,
 )
 
+import numpy as np
 import pandas as pd
 import yaml
 from liquid import Template
 from tqdm import tqdm
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.colors import hsv_to_rgb
 
 
 def expand_list(elist):
@@ -114,6 +120,59 @@ def get_community_dataframe(community):
     return pd.concat(df_list)
 
 
+def render_repositories_chart(filepath, df_tools, community_name):
+    repos = df_tools.repository.drop_duplicates().tolist()
+    frequencies, labels, colors = list(), list(), list()
+    for repo in repos:
+        frequency = (df_tools.repository == repo).sum()
+        frequencies.append(frequency)
+        labels.append(f'{repo} ({100 * frequency / len(df_tools):1.1f}%)')
+
+    # Merge wedges as long as there are more than 1 with less than 5% amount
+    freq_threshold = 0.05
+    while sum([f / len(df_tools) < freq_threshold for f in frequencies]) > 1:
+        smallest = np.argsort(frequencies)
+        smallest_idx = smallest[0]
+        merge_to_idx = labels.index('other') if 'other' in labels else smallest[1]
+
+        frequencies[merge_to_idx] += frequencies[smallest_idx]
+        frequencies.pop(smallest_idx)
+        labels[merge_to_idx] = 'other'
+        labels.pop(smallest_idx)
+
+    # Update the label for the merged wedges (if any)
+    if 'other' in labels:
+        other_idx = labels.index('other')
+        labels[other_idx] = f'other ({100 * frequencies[other_idx] / len(df_tools):1.1f}%)'
+
+    # Compute colors
+    hues = np.linspace(0, 1, num=len(labels), endpoint=False)
+    for hue in hues:
+        hsv = (hue, 0.6, 0.9)
+        colors.append(hsv_to_rgb(hsv))
+
+    fig = plt.figure(figsize=(8,4))
+    ax = fig.add_subplot(111)
+    ax.set_title(f'{community_name}:\ndistribution of repositories')
+    ax.pie(frequencies,
+        labels=labels,
+        colors=colors,
+        shadow=False,
+        normalize=True,
+        startangle=-45,
+        labeldistance=1.1,
+        wedgeprops=dict(
+            edgecolor='white',
+            linewidth=2,
+            antialiased=True))
+    inner_circle = plt.Circle( (0,0), 0.5, color='white')
+    ax.add_artist(inner_circle)
+    ax.annotate(f'{len(df_tools)}', xy=(0, -0.1), fontsize=30, ha='center', va='bottom')
+    ax.annotate(f'tools', xy=(0, -0.1), fontsize=18, ha='center', va='top')
+    fig.set_facecolor('0.937')
+    fig.savefig(filepath)
+
+
 def update_communities():
 
     # Load communities
@@ -127,6 +186,10 @@ def update_communities():
     # Prepare directory for community graphs
     communitygraphs_dir = 'report/assets/images/communitygraphs'
     os.makedirs(communitygraphs_dir, exist_ok=True)
+
+    # Prepare directory for repository charts
+    repositorycharts_dir = 'report/assets/images/repositorycharts'
+    os.makedirs(repositorycharts_dir, exist_ok=True)
 
     # Render community pages
     os.makedirs('report/communities', exist_ok=True)
@@ -159,6 +222,9 @@ def update_communities():
             df_tools.drop_duplicates(inplace=True)
             df_tools.sort_values(['repository', 'tool'], inplace=True)
             df_tools.to_csv(f'{communities_data_dir}/{cid}-tools.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+            # Render the tools-per-repositories chart
+            render_repositories_chart(f'{repositorycharts_dir}/{cid}.svg', df_tools, community['name'])
 
 
 def get_contributors():
@@ -209,7 +275,7 @@ def update_contributors():
 
 def update():
     update_communities()
-    update_contributors()
+    #update_contributors()
 
 
 def build():
