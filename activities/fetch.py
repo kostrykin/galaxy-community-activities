@@ -4,6 +4,7 @@ import base64
 import re
 import pathlib
 import csv
+import json
 import urllib.request
 import collections
 import random
@@ -110,11 +111,12 @@ def get_tool_directories(repository: Repository, commit: Commit, status: Optiona
         return frozenset()
 
 
-def get_updated_tool_categories(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> FrozenSet[str]:
+def get_updated_tools(repository: Repository, commit: Commit, tool_directories: FrozenSet[str], status: Optional[tqdm]=None) -> List[dict]:
     """
-    Get list of the tool categories for which tools have been added, updated, or removed.
+    Get list of the tools for which tools have been added, updated, or removed.
     """
-    updated_tool_categories: Set[str] = set()
+    updated_tools: List[str] = list()
+    read_shed_files: Set[str] = set()
 
     for file in commit.files:
         for directory in pathlib.Path(file.filename).parents[:-1]:
@@ -123,13 +125,20 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 if status is not None: status.set_description_str(f'Peeking {shed_filepath}')
                 shed_file = get_string_content(repository.get_contents(shed_filepath, ref=commit.sha))
 
+                # Make sure each tool (shed file) is processed only once
+                if shed_file in read_shed_files: continue
+                read_shed_files.add(shed_file)
+
                 # Read the updated tool categories and add to set
                 try:
                     shed_data = yaml.safe_load(shed_file)
                     assert shed_data is not None
                     categories = shed_data.get('categories')
                     assert categories is not None and all(map(lambda item: isinstance(item, str), categories))
-                    updated_tool_categories |= set(categories)
+
+                    # Record the tool if reading the categories was successful, i.e. the shed file is valid
+                    tool = dict(name = directory.name, categories = list(sorted(categories)))
+                    updated_tools.append(tool)
 
                 # Do nothing if the file is not valid YAML or otherwise malformed
                 except (yaml.YAMLError, AssertionError):
@@ -138,7 +147,7 @@ def get_updated_tool_categories(repository: Repository, commit: Commit, tool_dir
                 # We are done with this file, since a shed file was found
                 break
 
-    return list(sorted(updated_tool_categories))
+    return list(sorted(updated_tools, key=lambda tool: tool['name']))
 
 
 class process_new_commits:
@@ -213,7 +222,7 @@ def get_commit_author(commit: Commit) -> Optional[str]:
 def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetime]=None) -> pd.DataFrame:
     repository = rinfo.get_repository(g)
     cached_df = cache.get_cached_commit_history(repository)
-    new_entries = dict(author=list(), timestamp=list(), categories=list(), sha=list())
+    new_entries = {c: list() for c in cached_df.columns}
 
     # Currently known tool directories, initially unknown
     tool_directories: FrozenSet[str] = None
@@ -238,19 +247,20 @@ def get_commit_history(g: Github, rinfo: RepositoryInfo, until: Optional[datetim
         if author is None:
 
             new_entries['author'].append('')
-            new_entries['categories'].append('')
+            new_entries['tools'].append('')
 
         else:
 
-            # If enabled, fetch the directory tree and get list of updated tool categories
+            # If enabled, fetch the directory tree and get list of updated tools
+            updated_tool: List[dict]
             if rinfo.scan_tools:
                 tool_directories: FrozenSet[str]  = get_tool_directories(repository, commit, pnc.status)
-                updated_tool_categories: FrozenSet[str] = get_updated_tool_categories(repository, commit, tool_directories, pnc.status)
+                updated_tools = get_updated_tools(repository, commit, tool_directories, pnc.status)
             else:
-                updated_tool_categories: FrozenSet[str] = frozenset()
+                updated_tools = list()
 
             new_entries['author'].append(author)
-            new_entries['categories'].append(','.join(updated_tool_categories))
+            new_entries['tools'].append(json.dumps(updated_tools))
 
         new_entries['timestamp'].append(str(datetime))
         new_entries['sha'].append(short_sha)
@@ -295,6 +305,7 @@ def get_avatars(g: Github, column: str, cache_df: pd.DataFrame, get_avatar_url: 
         cache_data['timestamp'].append(now + timedelta(days=7 + random.randint(0, 23)))
 
     cache_df = pd.DataFrame(cache_data)
+    cache_df.drop_duplicates(subset=[cache_column], keep='last', inplace=True)
     cache_df.sort_values(cache_column, inplace=True)
     return cache_df
 

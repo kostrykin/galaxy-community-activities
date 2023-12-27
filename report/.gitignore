@@ -5,6 +5,7 @@ _data/communities_data
 _data/contributors_data
 assets/images/communitygraphs
 assets/images/contributiongraphs
+assets/images/repositorycharts
 .sass-cache
 .jekyll-cache
 .jekyll-metadata
