@@ -63,8 +63,8 @@ def get_community_dataframe(community):
     df_list = list()
     for repo in repositories:
         df = pd.read_csv(cache.get_cached_repository_filepath(repo))
-        df.tools = df.tools.fillna('[]')
         if categories is not None or len(keep_tools) > 0:
+            df.tools = df.tools.fillna('[]')
 
             # List of commits (row indices) to drop from the current dataframe
             drop_idx_list = list()
@@ -106,6 +106,9 @@ def get_community_dataframe(community):
             # Drop the commits listed for removal
             df.drop(drop_idx_list, inplace=True)
 
+        else:
+            df.tools = ''
+
         df['repository'] = repo
         df_list.append(df)
     return pd.concat(df_list)
@@ -143,6 +146,19 @@ def update_communities():
         # Render the community template
         with open(f'report/communities/{cid}.md', 'w') as fp:
             fp.write(template.render(community = community))
+
+        # Create dataframe for the tools of the community
+        df_tools_rows = list()
+        for _, row in df.iterrows():
+            for tool in row.tools.split(','):
+                tool = tool.strip()
+                if len(tool) > 0:
+                    df_tools_rows.append(dict(repository=row.repository, tool=tool))
+        if len(df_tools_rows) > 0:
+            df_tools = pd.DataFrame(df_tools_rows)
+            df_tools.drop_duplicates(inplace=True)
+            df_tools.sort_values(['repository', 'tool'], inplace=True)
+            df_tools.to_csv(f'{communities_data_dir}/{cid}-tools.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def get_contributors():

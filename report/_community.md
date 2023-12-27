@@ -47,32 +47,6 @@ And also:
 </p>
 {% endif %}
 
-{% assign tools = "" | split: "." %}
-
-{% for c in commits %}
-  {% assign c_tools = c.tools | split: "," %}
-  {% for t in c_tools %}
-    {% assign tools = tools | push: t | uniq %}
-  {% endfor %}
-{% endfor %}
-
-{% if tools %}
-{% assign tools = tools | sort %}
-Overall contributed tools:
-<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#tool-list" aria-expanded="false" aria-controls="tool-list">
-  {{ tools.size }} tools
-</button>
-<div class="collapse" id="tool-list">
-  <div class="card card-body">
-    <ol>
-      {% for tool in tools %}
-      <li>{{ tool }}</li>
-      {% endfor %}
-    </ol>
-  </div>
-</div>
-{% endif %}
-
 ---
 
 {% assign since_year = site.time | date: '%Y' | minus:1 %}
@@ -106,10 +80,10 @@ And also:
   {% endif %}
 {% endfor %}
 
-<h3><small><b>Community graph:</b></small></h3>
 {% assign communitygraph_path = "/assets/images/communitygraphs/" | append: page.community_id | append: ".png" %}
 {% assign communitygraphs = site.static_files | where: "path", communitygraph_path %}
 {% if communitygraphs.size > 0 %}
+  <h3><small><b>Community graph:</b></small></h3>
   {% assign communitygraph = ".." | append: communitygraphs[0].path %}
   <a href="{{ communitygraph }}" id="communitygraph-link">
     <img id="communitygraph-thumbnail" src="{{ communitygraph }}" class="img-communitygraph img-thumbnail">
@@ -129,6 +103,35 @@ And also:
       </div>
     </div>
   </div>
+{% endif %}
+
+{% assign dataname = page.community_id | append: "-tools" %}
+{% assign tools = site.data.communities_data[dataname] %}
+{% if tools %}
+---
+<h2><small>Repositories: <b>{{ tools.size }} tools</b></small></h2>
+{% assign repositories = tools | group_by: "repository" %}
+{% if repositories %}
+{% assign repositories = repositories | sort: "size" | reverse %}
+{% for repo in repositories %}
+{% assign repo_id = repo.name | slugify %}
+<p>
+  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ repo_id }}" aria-expanded="false" aria-controls="{{ repo_id }}">
+    {{ repo.name }}
+  </button>
+  ({{ repo.items.size }})
+  <div class="collapse" id="{{ repo_id }}">
+    <div class="card card-body">
+      <ol>
+        {% for item in repo.items %}
+          <li>{{ item.tool }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+</p>
+{% endfor %}
+{% endif %}
 {% endif %}
 
 {% endraw %}
