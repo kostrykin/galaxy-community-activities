@@ -18054,3 +18054,4 @@
 "bernt-matthias","2023-12-19 15:35:31+00:00","c1cd9b7","[{""name"": ""unicycler"", ""categories"": [""Assembly""]}]"
 "mvdbeek","2023-12-20 17:43:36+00:00","4b95b96","[{""name"": ""abritamr"", ""categories"": [""Sequence Analysis""]}, {""name"": ""isoformswitchanalyzer"", ""categories"": [""RNA"", ""Statistics"", ""Transcriptomics""]}, {""name"": ""smudgeplot"", ""categories"": [""Assembly""]}, {""name"": ""spyboat"", ""categories"": [""Graphics"", ""Imaging""]}, {""name"": ""velocyto"", ""categories"": [""Transcriptomics""]}]"
 "Ralwoss","2023-12-20 20:16:31+00:00","be3f3d0","[{""name"": ""maxbin2"", ""categories"": [""Metagenomics""]}]"
+"bgruening","2023-12-30 12:16:53+00:00","aa8360c","[{""name"": ""jellyfish"", ""categories"": [""Assembly""]}]"
