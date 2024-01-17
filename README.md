@@ -5,6 +5,8 @@
 
 Tool which reports and summarizes activities within a Galaxy community.
 
+For more info, see the [announcement on galaxyproject.org](https://galaxyproject.org/news/2024-01-galaxy-community-activities/).
+
 Updates are scheduled weekly.
 
 ## Local setup
