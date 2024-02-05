@@ -20,8 +20,8 @@ communities:
     name: Microbial Data Analysis
     short_name: microgalaxy
     categories:
-      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/microgalaxy/categories
+      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/categories
     exclude-tools:
-      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/microgalaxy/tools_to_exclude
+      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tools_to_exclude
     keep-tools:
-      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/microgalaxy/tools_to_keep
+      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tools_to_keep
