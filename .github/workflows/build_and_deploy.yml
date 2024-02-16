@@ -1,6 +1,7 @@
 name: Build and deploy
 
 on:
+  pull_request:
   workflow_dispatch:
   workflow_run:
     workflows: [Update cache]
