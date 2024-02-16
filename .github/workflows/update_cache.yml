@@ -2,6 +2,7 @@ name: Update cache
 
 on:
   workflow_dispatch:
+  pull_request:
   schedule:
     - cron: '0 1 * * 1'  ## At 01:00 AM on every Monday
 
@@ -19,12 +20,18 @@ jobs:
       - name: Install dependencies
         run: pip install pandas PyGithub pyyaml tqdm
 
+      - name: Verify that the CLI is working
+        if: github.event_name == 'pull_request'
+        run: python -m activities.cli --help
+
       - name: Update cache
+        if: github.event_name != 'pull_request'
         run: python -m activities.cli --fetch
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Commit and push updated cache
+        if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update cache
