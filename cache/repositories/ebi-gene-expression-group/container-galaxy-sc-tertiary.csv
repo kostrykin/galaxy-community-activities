@@ -260,3 +260,5 @@
 "pcm32","2023-10-13 15:12:10+00:00","85a3118","[{""name"": ""decoupler"", ""categories"": [""Transcriptomics""]}]"
 "pcm32","2023-11-09 11:26:28+00:00","c8c39f1","[{""name"": ""decoupler"", ""categories"": [""Transcriptomics""]}]"
 "pcm32","2023-11-16 19:58:49+00:00","56273bc","[{""name"": ""decoupler"", ""categories"": [""Transcriptomics""]}]"
+"pcm32","2024-02-27 16:33:50+00:00","ee197a8","[{""name"": ""scanpy"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}]"
+"pcm32","2024-03-02 10:37:19+00:00","0264c35","[{""name"": ""seurat"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Statistics"", ""Transcriptomics""]}]"
