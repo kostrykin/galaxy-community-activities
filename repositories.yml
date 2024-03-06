@@ -7,3 +7,6 @@ repositories:
 
 - owner-name: galaxyproject/training-material
   scan-tools: false
+
+- owner-name: galaxyproject/iwc
+  scan-tools: false
