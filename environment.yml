@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python >=3.10
-  - pandas
+  - pandas <3.0
   - c-compiler
   - compilers
   - cxx-compiler
