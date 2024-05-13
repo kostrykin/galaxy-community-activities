@@ -19082,3 +19082,7 @@
 "SaimMomin12","2024-04-30 11:51:39+00:00","162c595","[{""name"": ""pairtools"", ""categories"": [""Sequence Analysis""]}]"
 "bernt-matthias","2024-05-02 08:52:32+00:00","921fa90","[{""name"": ""mitos"", ""categories"": [""Sequence Analysis""]}]"
 "SaimMomin12","2024-05-03 20:11:41+00:00","57fa4dc","[{""name"": ""fastk"", ""categories"": [""Assembly""]}]"
+"bernt-matthias","2024-05-06 18:21:25+00:00","1e2ca15","[{""name"": ""kofamscan"", ""categories"": [""Sequence Analysis""]}]"
+"SaimMomin12","2024-05-06 18:25:01+00:00","5fd8f13","[{""name"": ""mosdepth"", ""categories"": [""SAM""]}]"
+"wm75","2024-05-08 06:50:29+00:00","1056d5c","[{""name"": ""varvamp"", ""categories"": [""Sequence Analysis""]}]"
+"nilchia","2024-05-11 22:33:58+00:00","2564b0c","[{""name"": ""chewbbaca"", ""categories"": [""Variant Analysis""]}]"

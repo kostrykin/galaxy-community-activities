@@ -3289,3 +3289,5 @@
 "npinter","2024-04-11 07:41:29+00:00","7391296","[{""name"": ""qupath_roi_splitter"", ""categories"": [""Imaging""]}]"
 "bgruening","2024-04-23 13:03:53+00:00","8e3a5e1","[]"
 "npinter","2024-04-25 14:57:57+00:00","00029e8","[{""name"": ""qupath_roi_splitter"", ""categories"": [""Imaging""]}]"
+"reid-wagner","2024-05-08 16:51:22+00:00","22916ed","[{""name"": ""pepquery2"", ""categories"": [""Proteomics""]}]"
+"bebatut","2024-05-11 16:32:14+00:00","fd12c12","[{""name"": ""metanovo"", ""categories"": [""Proteomics""]}]"
