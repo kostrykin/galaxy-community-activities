@@ -22,6 +22,14 @@ communities:
     categories:
       - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/categories
     exclude-tools:
-      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tools_to_exclude
+      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tool_status.tsv
+        filter:
+          retain-column: 1
+          match-column: 2
+          match-value: 'FALSE'
     keep-tools:
-      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tools_to_keep
+      - expand: https://raw.githubusercontent.com/galaxyproject/galaxy_tool_metadata_extractor/main/data/communities/microgalaxy/tool_status.tsv
+        filter:
+          retain-column: 1
+          match-column: 2
+          match-value: 'TRUE'

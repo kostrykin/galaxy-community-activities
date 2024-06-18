@@ -26,13 +26,33 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import hsv_to_rgb
 
 
+def apply_item_filter(item_filter, item):
+    columns = item.split('\t')
+    match_value = item_filter['match-value']
+    assert isinstance(match_value, str), type(match_value)
+    if columns[item_filter['match-column'] - 1] == match_value:
+        print(f'*** ! {item_filter["match-value"]} ! ***')
+        return columns[item_filter['retain-column'] - 1]
+    else:
+        return None
+
+
 def expand_list(elist):
     items = list()
     for info in elist:
         if 'expand' in info:
-            for item in urllib.request.urlopen(info['expand']):
-                item = item.decode('utf-8').strip()
-                items.append(item)
+            url = info['expand']
+            item_filter = info.get('filter', None)
+            try:
+                for item in urllib.request.urlopen(url):
+                    item = item.decode('utf-8').strip()
+                    if item_filter is not None:
+                        item = apply_item_filter(item_filter, item)
+                        if item is None: continue
+                    items.append(item)
+            except:
+                print(f'*** Failed to expand: {url}')
+                raise
         else:
             assert isinstance(info, str), str(info)
             items.append(info)
