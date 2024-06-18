@@ -31,7 +31,6 @@ def apply_item_filter(item_filter, item):
     match_value = item_filter['match-value']
     assert isinstance(match_value, str), type(match_value)
     if columns[item_filter['match-column'] - 1] == match_value:
-        print(f'*** ! {item_filter["match-value"]} ! ***')
         return columns[item_filter['retain-column'] - 1]
     else:
         return None
@@ -127,7 +126,7 @@ def get_community_dataframe(community):
 
                 # Otherwise, keep it and also record the names of the concerned tools
                 else:
-                    df.tools.iloc[row_idx] = ",".join(list(sorted(community_tools)))
+                    df.loc[row_idx, 'tools'] = ",".join(list(sorted(community_tools)))
 
             # Drop the commits listed for removal
             df.drop(drop_idx_list, inplace=True)
