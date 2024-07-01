@@ -61,10 +61,10 @@ class RepositoryInfo:
         self.scan_tools = scan_tools
 
     def get_repository(self, g: Github):
-        assert self.url.lower().startswith(GITHUB_URL.lower()), f'Invalid URL: {repository_url}'
+        assert self.url.lower().startswith(GITHUB_URL.lower()), f'Invalid URL: {self.url}'
         url = self.url[len(GITHUB_URL):]
         url_match = re.match(GITHUB_REPOSITORY_PATTERN, url)
-        assert url_match is not None, f'Invalid URL pattern: {repository_url}'
+        assert url_match is not None, f'Invalid URL pattern: {self.url}'
         owner, name = url_match.group(1), url_match.group(2)
         try:
             return g.get_repo(f'{owner}/{name}')
