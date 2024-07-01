@@ -8,6 +8,7 @@ import json
 import urllib.request
 import collections
 import random
+import warnings
 from datetime import (
     datetime,
     timedelta,
@@ -90,11 +91,15 @@ def get_github_repositories(g: Github) -> List[str]:
             for repo_line in urllib.request.urlopen(repo_spec['url-list']):
                 repo_line = repo_line.decode('utf-8').split('#')[0].strip()
                 if len(repo_line) > 0:
-                    repo_list.append(RepositoryInfo(repo_line, **kwargs))
+                    repo_info = RepositoryInfo(repo_line, **kwargs)
+                    if repo_info.url.lower().startswith(GITHUB_URL.lower()):
+                        repo_list.append(repo_info)
+                    else:
+                        warnings.warn(f'Not a GitHub URL, ignored: {repo_info.url}', stacklevel=2)
         elif 'url' in repo_spec:
-                repo_list.append(RepositoryInfo(repo_spec['url'], **kwargs))
+            repo_list.append(RepositoryInfo(repo_url, **kwargs))
         elif 'owner-name' in repo_spec:
-                repo_list.append(RepositoryInfo(GITHUB_URL + repo_spec['owner-name'], **kwargs))
+            repo_list.append(RepositoryInfo(GITHUB_URL + repo_spec['owner-name'], **kwargs))
     return repo_list
 
 
