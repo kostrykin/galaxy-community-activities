@@ -21,12 +21,12 @@ if __name__ == '__main__':
     parser_report.add_argument('--report', help='Build the report', action='store_true', default=False)
     args = parser.parse_args()
 
-    if not (args.fetch or args.report):
+    if not (args.fetch or args.report or args.list):
         parser.print_help()
         print()
         parser.error('No action requested, add --fetch or --report')
 
-    if args.fetch:
+    if args.fetch or args.list:
         from . import fetch
 
         if args.api is None:
@@ -54,8 +54,8 @@ if __name__ == '__main__':
                 print(f'\n({ridx + 1}/{len(repositories)}) {rinfo.url} ↴')
                 fetch.get_commit_history(g, rinfo, until)
 
-        # Fetch avatars
-        fetch.get_all_avatars(g)
+            # Fetch avatars
+            fetch.get_all_avatars(g)
 
     if args.report:
         from . import report
