@@ -6549,3 +6549,8 @@
 "bgruening","2024-07-09 07:37:24+00:00","b7f4b9b","[{""name"": ""ear"", ""categories"": [""Assembly"", ""Sequence Analysis""]}]"
 "ivelet","2024-07-11 20:53:05+00:00","ee837e8","[{""name"": ""rnaformer"", ""categories"": [""RNA""]}]"
 "SaimMomin12","2024-07-12 11:48:19+00:00","211f182","[]"
+"SaimMomin12","2024-07-23 14:58:05+00:00","a447bd0","[{""name"": ""cpat"", ""categories"": [""Transcriptomics""]}]"
+"bernt-matthias","2024-07-24 12:41:27+00:00","4f9b087","[{""name"": ""imagej2"", ""categories"": [""Imaging""]}]"
+"tbrown91","2024-07-26 15:06:10+00:00","85b3b32","[{""name"": ""agat"", ""categories"": [""Convert Formats"", ""Fasta Manipulation"", ""Statistics""]}]"
+"SaimMomin12","2024-07-26 16:06:08+00:00","d4e8bcb","[{""name"": ""blobtoolkit"", ""categories"": [""Assembly"", ""Sequence Analysis""]}]"
+"fubar2","2024-07-28 02:28:33+00:00","45375b6","[{""name"": ""jbrowse2"", ""categories"": [""Sequence Analysis""]}]"
