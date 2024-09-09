@@ -1141,3 +1141,4 @@
 "peterjc","2024-02-22 14:53:50+00:00","45f1384","[{""name"": ""ncbi_blast_plus"", ""categories"": [""Sequence Analysis""]}]"
 "peterjc","2024-06-17 01:47:48+00:00","68ce195","[{""name"": ""make_nr"", ""categories"": [""Fasta Manipulation"", ""Sequence Analysis""]}]"
 "peterjc","2024-08-26 09:07:06+00:00","cca536a","[{""name"": ""blast2go"", ""categories"": [""Ontology Manipulation"", ""Sequence Analysis""]}]"
+"dependabot[bot]","2024-09-03 22:16:36+00:00","7709779","[]"
