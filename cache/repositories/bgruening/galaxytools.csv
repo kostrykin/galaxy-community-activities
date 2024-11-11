@@ -6617,3 +6617,5 @@
 "pavanvidem","2024-10-28 17:30:53+00:00","6954dde","[{""name"": ""10x_bamtofastq"", ""categories"": [""Convert Formats"", ""Single Cell""]}, {""name"": ""music_deconvolution"", ""categories"": [""Single Cell"", ""Transcriptomics""]}, {""name"": ""salmon"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Single Cell"", ""Transcriptomics""]}]"
 "arash77","2024-10-29 13:47:16+00:00","0959e15","[{""name"": ""flux"", ""categories"": [""Machine Learning""]}]"
 "arash77","2024-10-30 12:50:01+00:00","61ef690","[{""name"": ""flux"", ""categories"": [""Machine Learning""]}]"
+"SaimMomin12","2024-11-06 11:11:41+00:00","7de9687","[{""name"": ""gfastats"", ""categories"": [""Sequence Analysis""]}]"
+"mtekman","2024-11-06 23:12:37+00:00","7b4e1e8","[{""name"": ""music_deconvolution"", ""categories"": [""Single Cell"", ""Transcriptomics""]}]"
