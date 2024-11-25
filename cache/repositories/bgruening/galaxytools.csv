@@ -6620,3 +6620,7 @@
 "SaimMomin12","2024-11-06 11:11:41+00:00","7de9687","[{""name"": ""gfastats"", ""categories"": [""Sequence Analysis""]}]"
 "mtekman","2024-11-06 23:12:37+00:00","7b4e1e8","[{""name"": ""music_deconvolution"", ""categories"": [""Single Cell"", ""Transcriptomics""]}]"
 "RZ9082","2024-11-11 10:16:00+00:00","09c1d4a","[{""name"": ""infernal"", ""categories"": [""RNA""]}]"
+"mthang","2024-11-19 16:56:10+00:00","c25f042","[{""name"": ""blobtoolkit"", ""categories"": [""Assembly"", ""Sequence Analysis""]}]"
+"gxydevbot","2024-11-19 16:56:31+00:00","77c6761","[{""name"": ""cellprofiler_v4"", ""categories"": [""Imaging""]}]"
+"mvdbeek","2024-11-20 12:31:09+00:00","4fecc1b","[{""name"": ""infernal"", ""categories"": [""RNA""]}]"
+"arash77","2024-11-22 13:33:31+00:00","f8d8a93","[{""name"": ""flux"", ""categories"": [""Machine Learning""]}]"
