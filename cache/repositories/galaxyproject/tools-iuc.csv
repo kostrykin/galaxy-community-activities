@@ -20496,3 +20496,5 @@
 "mvdbeek","2024-12-18 17:19:04+00:00","295026b","[]"
 "gxydevbot","2024-12-22 10:40:35+00:00","89826ca","[{""name"": ""pairtools"", ""categories"": [""Sequence Analysis""]}]"
 "gxydevbot","2024-12-22 10:45:11+00:00","f27749b","[{""name"": ""featurecounts"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}]"
+"planemo-autoupdate","2024-12-23 04:41:19+00:00","112bffa","[{""name"": ""phyloseq"", ""categories"": [""Metagenomics""]}]"
+"bgruening","2024-12-26 18:23:07+00:00","4dba8c0","[{""name"": ""phyloseq"", ""categories"": [""Metagenomics""]}]"
