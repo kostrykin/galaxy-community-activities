@@ -331,3 +331,6 @@
 "bernt-matthias","2025-05-12 13:50:49+00:00","9cdc003","[{""name"": ""vibrant"", ""categories"": [""Metagenomics""]}]"
 "bernt-matthias","2025-05-19 06:40:58+00:00","18afc17","[]"
 "bernt-matthias","2025-06-04 17:05:55+00:00","45c7465","[{""name"": ""phi-toolkit"", ""categories"": [""Metagenomics""]}]"
+"bernt-matthias","2025-06-10 13:39:00+00:00","eb10798","[{""name"": ""scripting"", ""categories"": [""Text Manipulation""]}]"
+"rmassei","2025-06-13 20:31:13+00:00","3f4e79a","[{""name"": ""omero"", ""categories"": [""Imaging""]}]"
+"bernt-matthias","2025-06-13 20:31:24+00:00","fea5692","[{""name"": ""data_manager_genomad"", ""categories"": [""Data Managers"", ""Metagenomics""]}, {""name"": ""genomad"", ""categories"": [""Metagenomics""]}]"
