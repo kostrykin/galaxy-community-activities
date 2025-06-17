@@ -59,7 +59,7 @@ jobs:
             mv _site report
 
       - name: Squash and deploy to GitHub Pages
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         if: github.event_name != 'pull_request'
         with:
           file_pattern: 'report'
