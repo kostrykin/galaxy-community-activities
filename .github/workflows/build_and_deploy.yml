@@ -20,7 +20,7 @@ jobs:
     steps:
 
       - name: Initialize
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: gh-pages
           fetch-depth: 1  # With this git commit --amend will overwrite the whole history
