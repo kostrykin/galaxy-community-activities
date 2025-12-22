@@ -7393,3 +7393,7 @@
 "rmassei","2025-12-12 10:37:40+00:00","b3e6df8","[{""name"": ""cellpose"", ""categories"": [""Imaging""]}]"
 "kostrykin","2025-12-12 12:20:42+00:00","3f2ba60","[{""name"": ""cellpose"", ""categories"": [""Imaging""]}]"
 "nilchia","2025-12-12 14:54:01+00:00","d50a613","[{""name"": ""flexynesis"", ""categories"": [""Machine Learning"", ""Statistics"", ""Systems Biology""]}]"
+"sunyi000","2025-12-17 13:25:07+00:00","81c31a3","[{""name"": ""cellpose_v4"", ""categories"": [""Imaging""]}]"
+"dadrasarmin","2025-12-17 15:05:49+00:00","528a2a0","[{""name"": ""ffmpeg"", ""categories"": [""Convert Formats""]}]"
+"SantaMcCloud","2025-12-18 13:40:59+00:00","749acab","[{""name"": ""data_manager_kmetashot"", ""categories"": [""Data Managers"", ""Metagenomics""]}, {""name"": ""kmetashot"", ""categories"": [""Metagenomics""]}]"
+"pavanvidem","2025-12-18 13:57:39+00:00","9275472","[{""name"": ""psortb"", ""categories"": [""Proteomics"", ""Sequence Analysis""]}]"
