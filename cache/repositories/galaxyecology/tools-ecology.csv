@@ -1434,3 +1434,6 @@
 "bgruening","2026-01-15 10:12:38+00:00","caf7e17","[]"
 "bgruening","2026-01-15 10:13:04+00:00","d329c54","[]"
 "TuturBaba","2026-01-15 15:24:47+00:00","98384eb","[{""name"": ""Wildlife"", ""categories"": [""Ecology""]}]"
+"PaulineSGN","2026-01-20 20:57:53+00:00","076c247","[{""name"": ""medenv"", ""categories"": [""Data Source"", ""Ecology""]}]"
+"MarkusKonk","2026-01-22 16:10:27+00:00","5d9fafe","[{""name"": ""cmems_download_ic_bc"", ""categories"": [""Ecology""]}]"
+"MarkusKonk","2026-01-23 08:41:24+00:00","5c12f69","[{""name"": ""ccds_download_era5_af"", ""categories"": [""Ecology""]}]"
