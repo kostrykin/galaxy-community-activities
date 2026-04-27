@@ -1225,3 +1225,4 @@
 "kostrykin","2026-04-10 18:56:06+00:00","89bf737","[{""name"": ""image_info"", ""categories"": [""Imaging""]}, {""name"": ""unzip"", ""categories"": [""Convert Formats""]}]"
 "kostrykin","2026-04-10 19:54:14+00:00","45dde8d","[{""name"": ""unzip"", ""categories"": [""Convert Formats""]}]"
 "kostrykin","2026-04-11 07:53:38+00:00","7a3d03f","[{""name"": ""unzip"", ""categories"": [""Convert Formats""]}]"
+"kostrykin","2026-04-24 15:31:41+00:00","b18a447","[{""name"": ""parse_image_metadata"", ""categories"": [""Imaging""]}]"
