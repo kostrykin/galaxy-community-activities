@@ -7539,3 +7539,7 @@
 "SirKekstington","2026-05-12 08:58:29+00:00","3167561","[{""name"": ""mafft"", ""categories"": [""RNA""]}]"
 "pavanvidem","2026-05-12 10:25:15+00:00","9bfce35","[{""name"": ""cellpose_v4"", ""categories"": [""Imaging""]}]"
 "hechth","2026-05-13 22:06:14+00:00","431176b","[{""name"": ""opsin"", ""categories"": [""Computational chemistry""]}]"
+"gxydevbot","2026-05-18 12:48:32+00:00","13cb9c8","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
+"bgruening","2026-05-19 13:58:17+00:00","54ddf1c","[{""name"": ""grobid_dataset_annotate"", ""categories"": [""Natural Language Processing"", ""Text Manipulation""]}, {""name"": ""grobid_grobid"", ""categories"": [""Natural Language Processing"", ""Text Manipulation""]}]"
+"SaimMomin12","2026-05-22 11:56:41+00:00","494f234","[{""name"": ""pecat"", ""categories"": [""Assembly""]}]"
+"kgerb","2026-05-24 13:27:49+00:00","46a4fef","[{""name"": ""3dtrees_smart_tile"", ""categories"": [""Geo Science""]}]"
