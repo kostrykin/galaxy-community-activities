@@ -7572,3 +7572,8 @@
 "kgerb","2026-07-09 11:05:25+00:00","ddc991f","[{""name"": ""3dtrees_smart_tile"", ""categories"": [""Geo Science""]}]"
 "kgerb","2026-07-10 08:29:15+00:00","ece0fa6","[{""name"": ""3dtrees_potree"", ""categories"": [""Geo Science""]}]"
 "mvdbeek","2026-07-12 10:28:50+00:00","092c9bc","[{""name"": ""data_manager_motus_db_downloader"", ""categories"": [""Data Managers"", ""Metagenomics""]}]"
+"anuprulez","2026-07-13 11:06:33+00:00","c850f5e","[{""name"": ""tabpfn"", ""categories"": [""Machine Learning""]}]"
+"arash77","2026-07-14 19:04:57+00:00","f1d2c9d","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
+"IvoLeist","2026-07-15 20:03:47+00:00","8d74383","[{""name"": ""kraken_ocr"", ""categories"": [""Natural Language Processing""]}]"
+"bgruening","2026-07-16 00:03:44+00:00","a0f773e","[{""name"": ""grobid_dataset_annotate"", ""categories"": [""Natural Language Processing"", ""Text Manipulation""]}]"
+"bgruening","2026-07-16 00:09:54+00:00","f115a30","[{""name"": ""grobid_dataset_annotate"", ""categories"": [""Natural Language Processing"", ""Text Manipulation""]}, {""name"": ""grobid_grobid"", ""categories"": [""Natural Language Processing"", ""Text Manipulation""]}]"
