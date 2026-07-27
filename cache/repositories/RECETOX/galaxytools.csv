@@ -2506,3 +2506,6 @@
 "mbodova","2026-07-13 10:51:22+00:00","f69130d","[{""name"": ""waveica"", ""categories"": [""Metabolomics""]}]"
 "mbodova","2026-07-13 13:35:02+00:00","4fbc47c","[{""name"": ""bioconductor-msnbase"", ""categories"": [""Metabolomics"", ""Proteomics""]}]"
 "mbodova","2026-07-13 13:50:59+00:00","c064bc7","[{""name"": ""waveica"", ""categories"": [""Metabolomics""]}]"
+"gxydevbot","2026-07-20 12:10:32+00:00","1cb7a18","[{""name"": ""wtv"", ""categories"": [""Metabolomics""]}]"
+"rdurnik","2026-07-21 13:24:01+00:00","02ab9c7","[{""name"": ""aoptk"", ""categories"": [""Machine Learning""]}]"
+"gxydevbot","2026-07-22 12:11:54+00:00","105aaec","[{""name"": ""recetox_boxplot"", ""categories"": [""Visualization""]}]"
