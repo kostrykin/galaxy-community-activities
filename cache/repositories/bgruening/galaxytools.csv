@@ -7583,3 +7583,8 @@
 "d-callan","2026-07-25 02:02:23+00:00","f6024c5","[]"
 "d-callan","2026-07-25 15:05:46+00:00","242f660","[]"
 "d-callan","2026-07-26 18:20:41+00:00","72fdf01","[]"
+"d-callan","2026-07-28 18:21:49+00:00","083065f","[]"
+"mvdbeek","2026-07-29 08:34:28+00:00","b1935dc","[{""name"": ""data_manager_motus_db_downloader"", ""categories"": [""Data Managers"", ""Metagenomics""]}]"
+"mvdbeek","2026-07-29 14:52:20+00:00","3c0107c","[{""name"": ""data_manager_motus_db_downloader"", ""categories"": [""Data Managers"", ""Metagenomics""]}]"
+"bgruening","2026-07-30 10:03:55+00:00","0bd6210","[{""name"": ""mirtrace"", ""categories"": [""Transcriptomics""]}]"
+"gxydevbot","2026-07-31 07:30:10+00:00","06becad","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
