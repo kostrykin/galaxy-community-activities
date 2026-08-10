@@ -7588,3 +7588,8 @@
 "mvdbeek","2026-07-29 14:52:20+00:00","3c0107c","[{""name"": ""data_manager_motus_db_downloader"", ""categories"": [""Data Managers"", ""Metagenomics""]}]"
 "bgruening","2026-07-30 10:03:55+00:00","0bd6210","[{""name"": ""mirtrace"", ""categories"": [""Transcriptomics""]}]"
 "gxydevbot","2026-07-31 07:30:10+00:00","06becad","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
+"kostrykin","2026-08-03 17:46:01+00:00","0ffcdee","[{""name"": ""cellpose_v4"", ""categories"": [""Imaging""]}]"
+"pavanvidem","2026-08-04 09:20:53+00:00","ea39457","[{""name"": ""webatlas"", ""categories"": [""Single Cell"", ""Spatial Omics""]}]"
+"gxydevbot","2026-08-04 09:35:11+00:00","82db5a2","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
+"paulzierep","2026-08-04 14:00:07+00:00","8c3aaed","[{""name"": ""confindr"", ""categories"": [""Sequence Analysis""]}]"
+"paulzierep","2026-08-06 11:12:55+00:00","e9499d2","[{""name"": ""lissero"", ""categories"": [""Metagenomics"", ""Sequence Analysis""]}]"
