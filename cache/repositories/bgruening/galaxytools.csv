@@ -7593,3 +7593,8 @@
 "gxydevbot","2026-08-04 09:35:11+00:00","82db5a2","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
 "paulzierep","2026-08-04 14:00:07+00:00","8c3aaed","[{""name"": ""confindr"", ""categories"": [""Sequence Analysis""]}]"
 "paulzierep","2026-08-06 11:12:55+00:00","e9499d2","[{""name"": ""lissero"", ""categories"": [""Metagenomics"", ""Sequence Analysis""]}]"
+"gxydevbot","2026-08-10 08:20:40+00:00","604f59d","[{""name"": ""blobtoolkit"", ""categories"": [""Assembly"", ""Sequence Analysis""]}]"
+"gxydevbot","2026-08-11 09:16:42+00:00","dd94105","[{""name"": ""llm_hub"", ""categories"": [""Machine Learning""]}]"
+"SantaMcCloud","2026-08-13 20:27:43+00:00","f22a163","[{""name"": ""tdrmapper"", ""categories"": [""RNA"", ""Sequence Analysis""]}]"
+"SantaMcCloud","2026-08-13 20:30:19+00:00","dbec6d0","[{""name"": ""data_manager_mirge3"", ""categories"": [""Data Managers"", ""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}, {""name"": ""mirge3"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}]"
+"github-actions[bot]","2026-08-13 20:31:58+00:00","39004cf","[{""name"": ""survminer"", ""categories"": [""Statistics""]}]"
