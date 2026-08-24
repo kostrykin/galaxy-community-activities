@@ -7598,3 +7598,6 @@
 "SantaMcCloud","2026-08-13 20:27:43+00:00","f22a163","[{""name"": ""tdrmapper"", ""categories"": [""RNA"", ""Sequence Analysis""]}]"
 "SantaMcCloud","2026-08-13 20:30:19+00:00","dbec6d0","[{""name"": ""data_manager_mirge3"", ""categories"": [""Data Managers"", ""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}, {""name"": ""mirge3"", ""categories"": [""RNA"", ""Sequence Analysis"", ""Transcriptomics""]}]"
 "github-actions[bot]","2026-08-13 20:31:58+00:00","39004cf","[{""name"": ""survminer"", ""categories"": [""Statistics""]}]"
+"gxydevbot","2026-08-17 11:28:25+00:00","da30fe3","[{""name"": ""text_processing"", ""categories"": [""Text Manipulation""]}]"
+"RZ9082","2026-08-17 12:32:44+00:00","09aefaa","[{""name"": ""confab"", ""categories"": [""Computational chemistry""]}]"
+"mthang","2026-08-18 07:36:45+00:00","7caf8e5","[{""name"": ""data_manager_sylph_tax_database"", ""categories"": [""Data Managers""]}]"
