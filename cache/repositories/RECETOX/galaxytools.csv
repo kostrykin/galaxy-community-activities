@@ -2519,3 +2519,5 @@
 "hechth","2026-09-24 10:27:52+00:00","2785b6a","[]"
 "dependabot[bot]","2026-09-24 10:30:55+00:00","7574745","[]"
 "Copilot","2026-09-25 13:55:59+00:00","779dcc9","[{""name"": ""xtb"", ""categories"": [""Metabolomics""]}]"
+"hechth","2026-10-01 08:56:42+00:00","8bfc690","[{""name"": ""bioconductor-msnbase"", ""categories"": [""Metabolomics"", ""Proteomics""]}, {""name"": ""biotransformer"", ""categories"": [""Metabolomics""]}, {""name"": ""gc_derivatization"", ""categories"": [""Metabolomics""]}, {""name"": ""matchms"", ""categories"": [""Metabolomics""]}, {""name"": ""msmetaenhancer"", ""categories"": [""Metabolomics""]}, {""name"": ""msp_merge"", ""categories"": [""Metabolomics""]}, {""name"": ""mzml_validator"", ""categories"": [""Metabolomics"", ""Proteomics""]}]"
+"mbodova","2026-10-02 10:18:31+00:00","46a8827","[{""name"": ""mfassignr"", ""categories"": [""Metabolomics""]}]"

@@ -1870,3 +1870,4 @@
 "MarkusKonk","2026-09-22 15:43:53+00:00","49b3d10","[{""name"": ""cmems_download_ic_bc"", ""categories"": [""Ecology""]}]"
 "MarkusKonk","2026-09-24 18:01:20+00:00","877c8b2","[{""name"": ""aquainfra_ogc_api_processes"", ""categories"": [""Ecology""]}, {""name"": ""ccds_download_era5_af"", ""categories"": [""Ecology""]}]"
 "martenson","2026-09-26 20:47:00+00:00","aae4b16","[{""name"": ""Wildlife"", ""categories"": [""Ecology""]}]"
+"Mathmath34","2026-10-03 11:28:07+00:00","21960b6","[{""name"": ""generate_spinup_metadata"", ""categories"": [""Climate Analysis""]}]"
