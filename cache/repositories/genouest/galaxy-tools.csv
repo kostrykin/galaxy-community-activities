@@ -290,3 +290,8 @@
 "abretaud","2026-02-19 15:29:39+00:00","04e19d1","[{""name"": ""helixer"", ""categories"": [""Genome annotation""]}]"
 "rlibouba","2026-07-16 11:35:55+00:00","ef58f07","[{""name"": ""helixer"", ""categories"": [""Genome annotation""]}]"
 "abretaud","2026-09-07 12:13:07+00:00","57cdd7e","[{""name"": ""helixer"", ""categories"": [""Genome annotation""]}]"
+"","2026-10-02 13:08:43+00:00","cb32e54",""
+"abretaud","2026-10-05 09:54:23+00:00","c813cdd","[{""name"": ""enzbert"", ""categories"": [""Genome annotation""]}]"
+"LeCorreP","2026-10-05 10:15:23+00:00","0c45557","[{""name"": ""data_manager_enzbert"", ""categories"": [""Data Managers""]}]"
+"LeCorreP","2026-10-05 10:16:31+00:00","35d8867","[{""name"": ""enzbert"", ""categories"": [""Genome annotation""]}]"
+"abretaud","2026-10-05 12:11:16+00:00","2ca6115","[{""name"": ""data_manager_enzbert"", ""categories"": [""Data Managers""]}, {""name"": ""enzbert"", ""categories"": [""Genome annotation""]}]"
