@@ -315,3 +315,7 @@
 "richard-burhans","2026-10-08 16:44:12+00:00","3fb76d2","[{""name"": ""growler_lastz_lav"", ""categories"": [""Sequence Analysis""]}]"
 "richard-burhans","2026-10-08 17:00:20+00:00","1ebdeb2","[]"
 "richard-burhans","2026-10-09 15:47:57+00:00","d9b2a0e","[{""name"": ""growler_lastz_lav"", ""categories"": [""Sequence Analysis""]}]"
+"richard-burhans","2026-10-19 17:16:49+00:00","813e011","[{""name"": ""maf_concat"", ""categories"": [""Sequence Analysis""]}, {""name"": ""maf_name_rows"", ""categories"": [""Sequence Analysis""]}, {""name"": ""multiz_roast"", ""categories"": [""Sequence Analysis""]}, {""name"": ""ucsc_mafsplit_bed"", ""categories"": [""Sequence Analysis""]}, {""name"": ""ucsc_maftobigmaf"", ""categories"": [""Sequence Analysis""]}]"
+"richard-burhans","2026-10-20 06:14:21+00:00","6954040","[]"
+"richard-burhans","2026-10-20 13:59:16+00:00","217025f","[{""name"": ""maf_concat"", ""categories"": [""Sequence Analysis""]}]"
+"richard-burhans","2026-10-21 11:34:10+00:00","0962ab3","[{""name"": ""multiz_roast"", ""categories"": [""Sequence Analysis""]}]"
